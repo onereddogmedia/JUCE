@@ -205,6 +205,14 @@ void AudioProcessorEditor::setScaleFactor (float newScale)
     editorResized (true);
 }
 
+void AudioProcessorEditor::postOpenURL(const URL& url)
+{
+    MessageManager::callAsync ([=]
+    {
+        handleOpenURL (url);
+    });
+}
+
 //==============================================================================
 #if JUCE_MODULE_AVAILABLE_juce_audio_plugin_client && JucePlugin_Build_Unity
  typedef ComponentPeer* (*createUnityPeerFunctionType) (Component&);
