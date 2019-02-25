@@ -81,6 +81,7 @@ namespace juce
           withCompletionHandler: (void(^)())completionHandler;
 #endif
 #endif
+- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey, id> *)options;
 
 @end
 
@@ -441,6 +442,8 @@ namespace juce
                                                       error:&error];
 
             [bookmark retain];
+
+            [url stopAccessingSecurityScopedResource];
 
             URL juceUrl(nsStringToJuce([url absoluteString]));
 

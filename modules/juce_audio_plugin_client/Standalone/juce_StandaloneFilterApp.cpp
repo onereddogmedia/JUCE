@@ -131,6 +131,12 @@ public:
         }
     }
 
+    void urlOpened(const URL& url) override
+    {
+        AudioProcessorEditor* editor = mainWindow->getAudioProcessor()->getActiveEditor();
+        editor->postOpenURL(url);
+    }
+
 protected:
     ApplicationProperties appProperties;
     std::unique_ptr<StandaloneFilterWindow> mainWindow;

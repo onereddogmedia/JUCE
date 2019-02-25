@@ -178,6 +178,10 @@ public:
 
     std::unique_ptr<ResizableCornerComponent> resizableCorner;
 
+    void postOpenURL(const URL& url);
+    
+    virtual void handleOpenURL(const URL& url) {}
+
 private:
     //==============================================================================
     struct AudioProcessorEditorListener : ComponentListener
