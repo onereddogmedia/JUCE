@@ -217,6 +217,11 @@ void AudioProcessorEditor::setScaleFactor (float newScale)
     editorResized (true);
 }
 
+void AudioProcessorEditor::postOpenURL(const URL& url)
+{
+    handleOpenURL (url);
+}
+
 //==============================================================================
 typedef ComponentPeer* (*createUnityPeerFunctionType) (Component&);
 createUnityPeerFunctionType juce_createUnityPeerFn = nullptr;
