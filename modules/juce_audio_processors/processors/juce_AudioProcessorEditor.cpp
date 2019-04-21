@@ -207,10 +207,7 @@ void AudioProcessorEditor::setScaleFactor (float newScale)
 
 void AudioProcessorEditor::postOpenURL(const URL& url)
 {
-    MessageManager::callAsync ([=]
-    {
-        handleOpenURL (url);
-    });
+    handleOpenURL (url);
 }
 
 //==============================================================================

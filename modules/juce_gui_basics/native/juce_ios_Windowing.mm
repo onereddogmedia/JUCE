@@ -444,8 +444,6 @@ namespace juce
 
             [bookmark retain];
 
-            [url stopAccessingSecurityScopedResource];
-
             URL juceUrl(nsStringToJuce([url absoluteString]));
 
             if (error == nil) {
@@ -464,6 +462,9 @@ namespace juce
             {
                 jassertfalse;
             }
+
+            [url stopAccessingSecurityScopedResource];
+
         } else {
             auto *desc = [err localizedDescription];
             ignoreUnused(desc);
