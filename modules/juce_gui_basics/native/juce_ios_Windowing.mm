@@ -414,6 +414,65 @@ namespace juce
 #endif
 #endif
 
+- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey, id> *)options
+{
+    if (!JUCEApplicationBase::getInstance())
+    {
+        [self applicationDidFinishLaunching:app];
+    }
+
+    NSUInteger accessOptions = NSFileCoordinatorReadingWithoutChanges;
+
+    auto *fileAccessIntent = [NSFileAccessIntent readingIntentWithURL:url options:accessOptions];
+
+    NSArray<NSFileAccessIntent *> *intents = @[fileAccessIntent];
+
+    auto *fileCoordinator = [[NSFileCoordinator alloc] initWithFilePresenter:nil];
+
+    [fileCoordinator coordinateAccessWithIntents:intents queue:[NSOperationQueue mainQueue] byAccessor:^(NSError *err) {
+        if (err == nil) {
+            [url startAccessingSecurityScopedResource];
+
+            NSError *error = nil;
+
+            NSData *bookmark = [url bookmarkDataWithOptions:0
+                             includingResourceValuesForKeys:nil
+                                              relativeToURL:nil
+                                                      error:&error];
+
+            [bookmark retain];
+
+            URL juceUrl(nsStringToJuce([url absoluteString]));
+
+            if (error == nil) {
+                setURLBookmark(juceUrl, (void *) bookmark);
+            } else {
+                auto *desc = [error localizedDescription];
+                ignoreUnused(desc);
+                jassertfalse;
+            }
+
+            if (auto *app = JUCEApplicationBase::getInstance())
+            {
+                app->urlOpened(juceUrl);
+            }
+            else
+            {
+                jassertfalse;
+            }
+
+            [url stopAccessingSecurityScopedResource];
+
+        } else {
+            auto *desc = [err localizedDescription];
+            ignoreUnused(desc);
+            jassertfalse;
+        }
+    }];
+
+    return YES;
+}
+
 @end
 
 namespace juce
