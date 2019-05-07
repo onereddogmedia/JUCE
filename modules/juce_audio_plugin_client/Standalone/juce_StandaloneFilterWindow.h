@@ -270,7 +270,7 @@ public:
         o.dialogTitle                   = TRANS("Audio/MIDI Settings");
         o.dialogBackgroundColour        = o.content->getLookAndFeel().findColour (ResizableWindow::backgroundColourId);
         o.escapeKeyTriggersCloseButton  = true;
-        o.useNativeTitleBar             = true;
+        o.useNativeTitleBar             = false;
         o.resizable                     = false;
 
         o.launchAsync();
