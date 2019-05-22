@@ -977,7 +977,7 @@ public:
     /** @internal */
     void mouseEnter (const MouseEvent&) override;
 
-private:
+protected:
     //==============================================================================
     JUCE_PUBLIC_IN_DLL_BUILD (class Pimpl)
     std::unique_ptr<Pimpl> pimpl;
