@@ -186,8 +186,7 @@ public:
 
         if (newValue != lastCurrentValue)
         {
-            if (valueBox != nullptr)
-                valueBox->hideEditor (true);
+            hideTextBox (true);
 
             lastCurrentValue = newValue;
 
@@ -422,6 +421,7 @@ public:
         }
 
         updateText(); // force a clean-up of the text, needed in case setValue() hasn't done this.
+        hideTextBox(true);
     }
 
     void updateText()
@@ -521,7 +521,10 @@ public:
         jassert (editableText); // this should probably be avoided in read-only sliders.
 
         if (valueBox != nullptr)
+        {
+            valueBox->setVisible(true);
             valueBox->showEditor();
+        }
     }
 
     void hideTextBox (bool discardCurrentEditorContents)
@@ -532,6 +535,8 @@ public:
 
             if (discardCurrentEditorContents)
                 updateText();
+            
+            valueBox->setVisible(false);
         }
     }
 
@@ -564,13 +569,15 @@ public:
 
             valueBox.reset();
             valueBox.reset (lf.createSliderTextBox (owner));
-            owner.addAndMakeVisible (valueBox.get());
+            owner.addChildComponent (valueBox.get());
 
             valueBox->setWantsKeyboardFocus (false);
             valueBox->setText (previousTextBoxContent, dontSendNotification);
             valueBox->setTooltip (owner.getTooltip());
             updateTextBoxEnablement();
             valueBox->onTextChange = [this] { textChanged(); };
+            valueBox->onEditorHide = [this] { hideTextBox(false); };
+        
 
             if (style == LinearBar || style == LinearBarVertical)
             {
@@ -839,8 +846,7 @@ public:
             {
                 useDragEvents = true;
 
-                if (valueBox != nullptr)
-                    valueBox->hideEditor (true);
+                hideTextBox (true);
 
                 sliderBeingDragged = getThumbIndexAt (e);
 
@@ -1074,8 +1080,7 @@ public:
 
                 if (normRange.end > normRange.start && ! e.mods.isAnyMouseButtonDown())
                 {
-                    if (valueBox != nullptr)
-                        valueBox->hideEditor (false);
+                    hideTextBox (false);
 
                     auto value = static_cast<double> (currentValue.getValue());
                     auto delta = getMouseWheelDelta (value, (std::abs (wheel.deltaX) > std::abs (wheel.deltaY)
