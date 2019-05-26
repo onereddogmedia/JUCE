@@ -447,6 +447,15 @@ MultiTouchMapper<UITouch*> UIViewComponentPeer::currentTouches;
     hiddenTextView.autocapitalizationType = UITextAutocapitalizationTypeNone;
     hiddenTextView.autocorrectionType = UITextAutocorrectionTypeNo;
 
+    if (SystemStats::getDeviceDescription().contains("iPhone")) {
+        UIToolbar *numberToolbar = [UIToolbar new];
+        numberToolbar.barStyle = UIBarStyleDefault;
+        UIBarButtonItem *done = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(selectDoneButton)];
+        numberToolbar.items = @[done];
+        [numberToolbar sizeToFit];
+        hiddenTextView.inputAccessoryView = numberToolbar;
+    }
+    
     return self;
 }
 
@@ -525,6 +534,10 @@ MultiTouchMapper<UITouch*> UIViewComponentPeer::currentTouches;
     ignoreUnused (textView);
     return owner->textViewReplaceCharacters (Range<int> ((int) range.location, (int) (range.location + range.length)),
                                              nsStringToJuce (text));
+}
+
+- (void)selectDoneButton {
+    juce::AlertTextComp::unfocusAllComponents();
 }
 
 @end
