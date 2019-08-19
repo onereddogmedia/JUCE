@@ -133,6 +133,9 @@ public:
     void addCompilerFlagScheme (const String&);
     void removeCompilerFlagScheme (const String&);
 
+    String getPostExportShellCommandPosixString() const     { return postExportShellCommandPosixValue.get(); }
+    String getPostExportShellCommandWinString() const       { return postExportShellCommandWinValue.get(); }
+
     //==============================================================================
     String getPluginNameString() const                { return pluginNameValue.get(); }
     String getPluginDescriptionString() const         { return pluginDescriptionValue.get();}
@@ -258,7 +261,7 @@ public:
         Item findItemWithID (const String& targetId) const; // (recursive search)
 
         String getImageFileID() const;
-        Drawable* loadAsImageFile() const;
+        std::unique_ptr<Drawable> loadAsImageFile() const;
 
         //==============================================================================
         Value getNameValue();
@@ -271,6 +274,7 @@ public:
         bool renameFile (const File& newFile);
 
         bool shouldBeAddedToTargetProject() const;
+        bool shouldBeAddedToTargetExporter (const ProjectExporter&) const;
         bool shouldBeCompiled() const;
         Value getShouldCompileValue();
 
@@ -384,7 +388,6 @@ public:
     void valueTreeChildAdded (ValueTree&, ValueTree&) override;
     void valueTreeChildRemoved (ValueTree&, ValueTree&, int) override;
     void valueTreeChildOrderChanged (ValueTree&, int, int) override;
-    void valueTreeParentChanged (ValueTree&) override;
 
     //==============================================================================
     UndoManager* getUndoManagerFor (const ValueTree&) const             { return nullptr; }
@@ -425,7 +428,7 @@ private:
     ValueWithDefault projectNameValue, projectUIDValue, projectLineFeedValue, projectTypeValue, versionValue, bundleIdentifierValue, companyNameValue,
                      companyCopyrightValue, companyWebsiteValue, companyEmailValue, displaySplashScreenValue, reportAppUsageValue, splashScreenColourValue, cppStandardValue,
                      headerSearchPathsValue, preprocessorDefsValue, userNotesValue, maxBinaryFileSizeValue, includeBinaryDataInJuceHeaderValue, binaryDataNamespaceValue,
-                     compilerFlagSchemesValue;
+                     compilerFlagSchemesValue, postExportShellCommandPosixValue, postExportShellCommandWinValue;
 
     ValueWithDefault pluginFormatsValue, pluginNameValue, pluginDescriptionValue, pluginManufacturerValue, pluginManufacturerCodeValue,
                      pluginCodeValue, pluginChannelConfigsValue, pluginCharacteristicsValue, pluginAUExportPrefixValue, pluginAAXIdentifierValue,

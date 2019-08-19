@@ -64,15 +64,15 @@ public:
     }
 
     //==============================================================================
-    static CodeBlocksProjectExporter* createForSettings (Project& project, const ValueTree& settings)
+    static CodeBlocksProjectExporter* createForSettings (Project& projectToUse, const ValueTree& settingsToUse)
     {
         // this will also import legacy jucer files where CodeBlocks only worked for Windows,
         // had valueTreetTypeName "CODEBLOCKS", and there was no OS distinction
-        if (settings.hasType (getValueTreeTypeName (windowsTarget)) || settings.hasType ("CODEBLOCKS"))
-            return new CodeBlocksProjectExporter (project, settings, windowsTarget);
+        if (settingsToUse.hasType (getValueTreeTypeName (windowsTarget)) || settingsToUse.hasType ("CODEBLOCKS"))
+            return new CodeBlocksProjectExporter (projectToUse, settingsToUse, windowsTarget);
 
-        if (settings.hasType (getValueTreeTypeName (linuxTarget)))
-            return new CodeBlocksProjectExporter (project, settings, linuxTarget);
+        if (settingsToUse.hasType (getValueTreeTypeName (linuxTarget)))
+            return new CodeBlocksProjectExporter (projectToUse, settingsToUse, linuxTarget);
 
         return nullptr;
     }
@@ -209,6 +209,7 @@ private:
 
         void createConfigProperties (PropertyListBuilder& props) override
         {
+            addRecommendedLinuxCompilerWarningsProperty (props);
             addGCCOptimisationProperty (props);
 
             props.add (new ChoicePropertyComponent (architectureTypeValue, "Architecture",
@@ -324,6 +325,7 @@ private:
         }
 
         if (project.getEnabledModules().isModuleEnabled ("juce_core")
+            && project.isConfigFlagEnabled ("JUCE_USE_CURL", true)
             && ! project.isConfigFlagEnabled ("JUCE_LOAD_CURL_SYMBOLS_LAZILY", false))
             result.add ("libcurl");
 
@@ -400,6 +402,9 @@ private:
 
         if (auto* codeBlocksConfig = dynamic_cast<const CodeBlocksBuildConfiguration*> (&config))
             flags.add (codeBlocksConfig->getArchitectureTypeString());
+
+        for (auto& recommended : config.getRecommendedCompilerWarningFlags())
+            flags.add (recommended);
 
         flags.add ("-O" + config.getGCCOptimisationFlag());
 
@@ -774,7 +779,7 @@ private:
             for (int i = 0; i < projectItem.getNumChildren(); ++i)
                 addCompileUnits (projectItem.getChild(i), xml);
         }
-        else if (projectItem.shouldBeAddedToTargetProject())
+        else if (projectItem.shouldBeAddedToTargetProject() && projectItem.shouldBeAddedToTargetExporter (*this))
         {
             RelativePath file (projectItem.getFile(), getTargetFolder(), RelativePath::buildTargetFolder);
 

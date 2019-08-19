@@ -33,7 +33,7 @@
                    juce_audio_processors, juce_audio_utils, juce_core,
                    juce_data_structures, juce_events, juce_graphics,
                    juce_gui_basics, juce_gui_extra
- exporters:        xcode_mac, vs2017, linux_make, androidstudio, xcode_iphone
+ exporters:        xcode_mac, vs2019, linux_make, androidstudio, xcode_iphone
 
  moduleFlags:      JUCE_STRICT_REFCOUNTEDPOINTER=1
 
@@ -47,7 +47,6 @@
 *******************************************************************************/
 
 #pragma once
-
 
 //==============================================================================
 class ZoneColourPicker
@@ -263,7 +262,7 @@ public:
 
 private:
     //==============================================================================
-    MPENote* findActiveNote (int noteID) const noexcept
+    const MPENote* findActiveNote (int noteID) const noexcept
     {
         for (auto& note : activeNotes)
             if (note.noteID == noteID)
@@ -828,6 +827,8 @@ public:
         }
     }
 
+    using MPESynthesiserVoice::renderNextBlock;
+
 private:
     //==============================================================================
     float getNextSample() noexcept
@@ -876,10 +877,10 @@ public:
           visualiserComp (colourPicker)
     {
        #ifndef JUCE_DEMO_RUNNER
-        audioDeviceManager.initialise (0, 2, 0, true, {}, 0);
+        audioDeviceManager.initialise (0, 2, nullptr, true, {}, nullptr);
        #endif
 
-        audioDeviceManager.addMidiInputCallback ({}, this);
+        audioDeviceManager.addMidiInputDeviceCallback ({}, this);
         audioDeviceManager.addAudioCallback (this);
 
         addAndMakeVisible (audioSetupComp);
@@ -902,9 +903,9 @@ public:
         setSize (880, 720);
     }
 
-    ~MPEDemo()
+    ~MPEDemo() override
     {
-        audioDeviceManager.removeMidiInputCallback ({}, this);
+        audioDeviceManager.removeMidiInputDeviceCallback ({}, this);
         audioDeviceManager.removeAudioCallback (this);
     }
 

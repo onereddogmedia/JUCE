@@ -33,7 +33,7 @@
                    juce_audio_processors, juce_audio_utils, juce_core,
                    juce_data_structures, juce_events, juce_graphics,
                    juce_gui_basics, juce_gui_extra
- exporters:        xcode_mac, vs2017, linux_make, androidstudio, xcode_iphone
+ exporters:        xcode_mac, vs2019, linux_make, androidstudio, xcode_iphone
 
  type:             Component
  mainClass:        AudioPlaybackDemo
@@ -75,7 +75,7 @@ public:
         addAndMakeVisible (currentPositionMarker);
     }
 
-    ~DemoThumbnailComp()
+    ~DemoThumbnailComp() override
     {
         scrollbar.removeListener (this);
         thumbnail.removeChangeListener (this);
@@ -342,7 +342,7 @@ public:
         setSize (500, 500);
     }
 
-    ~AudioPlaybackDemo()
+    ~AudioPlaybackDemo() override
     {
         transportSource  .setSource (nullptr);
         audioSourcePlayer.setSource (nullptr);

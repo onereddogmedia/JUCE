@@ -750,7 +750,7 @@ public:
                 for (int i = 0; i < projectItem.getNumChildren(); ++i)
                     addFilesToCompile (projectItem.getChild (i), cpps, headers, otherFiles);
             }
-            else if (projectItem.shouldBeAddedToTargetProject()
+            else if (projectItem.shouldBeAddedToTargetProject() && projectItem.shouldBeAddedToTargetExporter (getOwner())
                      && getOwner().getProject().getTargetTypeFromFilePath (projectItem.getFile(), true) == targetType)
             {
                 RelativePath path (projectItem.getFile(), getOwner().getTargetFolder(), RelativePath::buildTargetFolder);
@@ -842,7 +842,7 @@ public:
 
                 return filesWereAdded;
             }
-            else if (projectItem.shouldBeAddedToTargetProject())
+            else if (projectItem.shouldBeAddedToTargetProject() && projectItem.shouldBeAddedToTargetExporter (getOwner()))
             {
                 RelativePath relativePath (projectItem.getFile(), getOwner().getTargetFolder(), RelativePath::buildTargetFolder);
 
@@ -1464,16 +1464,16 @@ public:
         }
     }
 
-    static void writeRCValue (MemoryOutputStream& mo, const String& name, const String& value)
+    static void writeRCValue (MemoryOutputStream& mo, const String& n, const String& value)
     {
         if (value.isNotEmpty())
-            mo << "      VALUE \"" << name << "\",  \""
+            mo << "      VALUE \"" << n << "\",  \""
             << CppTokeniserFunctions::addEscapeChars (value) << "\\0\"" << newLine;
     }
 
-    static void createRCFile (const Project& project, const File& iconFile, const File& rcFile)
+    static void createRCFile (const Project& p, const File& iconFile, const File& rcFile)
     {
-        auto version = project.getVersionString();
+        auto version = p.getVersionString();
 
         MemoryOutputStream mo;
 
@@ -1493,12 +1493,12 @@ public:
            << "    BLOCK \"040904E4\"" << newLine
            << "    BEGIN" << newLine;
 
-        writeRCValue (mo, "CompanyName", project.getCompanyNameString());
-        writeRCValue (mo, "LegalCopyright", project.getCompanyCopyrightString());
-        writeRCValue (mo, "FileDescription", project.getProjectNameString());
-        writeRCValue (mo, "FileVersion", version);
-        writeRCValue (mo, "ProductName", project.getProjectNameString());
-        writeRCValue (mo, "ProductVersion", version);
+        writeRCValue (mo, "CompanyName",     p.getCompanyNameString());
+        writeRCValue (mo, "LegalCopyright",  p.getCompanyCopyrightString());
+        writeRCValue (mo, "FileDescription", p.getProjectNameString());
+        writeRCValue (mo, "FileVersion",     version);
+        writeRCValue (mo, "ProductName",     p.getProjectNameString());
+        writeRCValue (mo, "ProductVersion",  version);
 
         mo << "    END" << newLine
            << "  END" << newLine
@@ -1851,52 +1851,6 @@ protected:
 };
 
 //==============================================================================
-class MSVCProjectExporterVC2013  : public MSVCProjectExporterBase
-{
-public:
-    MSVCProjectExporterVC2013 (Project& p, const ValueTree& t)
-        : MSVCProjectExporterBase (p, t, getTargetFolderForExporter (getValueTreeTypeName()))
-    {
-        name = getName();
-
-        targetPlatformVersion.setDefault (getDefaultWindowsTargetPlatformVersion());
-        platformToolsetValue.setDefault (getDefaultToolset());
-    }
-
-    static const char* getName()                                     { return "Visual Studio 2013"; }
-    static const char* getValueTreeTypeName()                        { return "VS2013"; }
-    int getVisualStudioVersion() const override                      { return 12; }
-    String getSolutionComment() const override                       { return "# Visual Studio 2013"; }
-    String getToolsVersion() const override                          { return "12.0"; }
-    String getDefaultToolset() const override                        { return "v120"; }
-    String getDefaultWindowsTargetPlatformVersion() const override   { return "8.1"; }
-
-
-    static MSVCProjectExporterVC2013* createForSettings (Project& project, const ValueTree& settings)
-    {
-        if (settings.hasType (getValueTreeTypeName()))
-            return new MSVCProjectExporterVC2013 (project, settings);
-
-        return nullptr;
-    }
-
-    void createExporterProperties (PropertyListBuilder& props) override
-    {
-        MSVCProjectExporterBase::createExporterProperties (props);
-
-        static const char* toolsetNames[] = { "v120", "v120_xp", "Windows7.1SDK", "CTP_Nov2013" };
-        const var toolsets[]              = { "v120", "v120_xp", "Windows7.1SDK", "CTP_Nov2013" };
-        addToolsetProperty (props, toolsetNames, toolsets, numElementsInArray (toolsets));
-
-        addIPPLibraryProperty (props);
-
-        addWindowsTargetPlatformProperties (props);
-    }
-
-    JUCE_DECLARE_NON_COPYABLE (MSVCProjectExporterVC2013)
-};
-
-//==============================================================================
 class MSVCProjectExporterVC2015  : public MSVCProjectExporterBase
 {
 public:
@@ -1917,10 +1871,10 @@ public:
     String getDefaultToolset() const override                        { return "v140"; }
     String getDefaultWindowsTargetPlatformVersion() const override   { return "8.1"; }
 
-    static MSVCProjectExporterVC2015* createForSettings (Project& project, const ValueTree& settings)
+    static MSVCProjectExporterVC2015* createForSettings (Project& projectToUse, const ValueTree& settingsToUse)
     {
-        if (settings.hasType (getValueTreeTypeName()))
-            return new MSVCProjectExporterVC2015 (project, settings);
+        if (settingsToUse.hasType (getValueTreeTypeName()))
+            return new MSVCProjectExporterVC2015 (projectToUse, settingsToUse);
 
         return nullptr;
     }
@@ -1962,10 +1916,10 @@ public:
     String getDefaultToolset() const override                        { return "v141"; }
     String getDefaultWindowsTargetPlatformVersion() const override   { return "Latest"; }
 
-    static MSVCProjectExporterVC2017* createForSettings (Project& project, const ValueTree& settings)
+    static MSVCProjectExporterVC2017* createForSettings (Project& projectToUse, const ValueTree& settingsToUse)
     {
-        if (settings.hasType (getValueTreeTypeName()))
-            return new MSVCProjectExporterVC2017 (project, settings);
+        if (settingsToUse.hasType (getValueTreeTypeName()))
+            return new MSVCProjectExporterVC2017 (projectToUse, settingsToUse);
 
         return nullptr;
     }
@@ -2007,10 +1961,10 @@ public:
     String getDefaultToolset() const override                        { return "v142"; }
     String getDefaultWindowsTargetPlatformVersion() const override   { return "10.0"; }
 
-    static MSVCProjectExporterVC2019* createForSettings (Project& project, const ValueTree& settings)
+    static MSVCProjectExporterVC2019* createForSettings (Project& projectToUse, const ValueTree& settingsToUse)
     {
-        if (settings.hasType (getValueTreeTypeName()))
-            return new MSVCProjectExporterVC2019 (project, settings);
+        if (settingsToUse.hasType (getValueTreeTypeName()))
+            return new MSVCProjectExporterVC2019 (projectToUse, settingsToUse);
 
         return nullptr;
     }
