@@ -1531,14 +1531,14 @@ void AudioProcessorParameter::sendValueChangedMessageToListeners (float newValue
         if (auto* l = listeners [i])
             l->parameterValueChanged (getParameterIndex(), newValue);
 
-    if (processor != nullptr && parameterIndex >= 0)
-    {
-        // audioProcessorParameterChanged callbacks will shortly be deprecated and
-        // this code will be removed.
-        for (int i = processor->listeners.size(); --i >= 0;)
-            if (auto* l = processor->listeners[i])
-                l->audioProcessorParameterChanged (processor, getParameterIndex(), newValue);
-    }
+//    if (processor != nullptr && parameterIndex >= 0)
+//    {
+//        // audioProcessorParameterChanged callbacks will shortly be deprecated and
+//        // this code will be removed.
+//        for (int i = processor->listeners.size(); --i >= 0;)
+//            if (auto* l = processor->listeners[i])
+//                l->audioProcessorParameterChanged (processor, getParameterIndex(), newValue);
+//    }
 }
 
 bool AudioProcessorParameter::isOrientationInverted() const                      { return false; }
