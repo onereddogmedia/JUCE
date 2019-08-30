@@ -404,6 +404,11 @@ MultiTouchMapper<UITouch*> UIViewComponentPeer::currentTouches;
     return UIStatusBarStyleDefault;
 }
 
+- (UIRectEdge) preferredScreenEdgesDeferringSystemGestures
+{
+    return UIRectEdgeAll;
+}
+
 - (void) viewDidLoad
 {
     sendScreenBoundsUpdate (self);
