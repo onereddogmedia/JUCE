@@ -246,7 +246,7 @@ void TabbedComponent::paint (Graphics& g)
     TabbedComponentHelpers::getTabArea (content, outline, getOrientation(), tabDepth);
 
     g.reduceClipRegion (content);
-    g.fillAll (tabs->getTabBackgroundColour (getCurrentTabIndex()));
+    g.fillAll (Colours::transparentBlack);
 
     if (outlineThickness > 0)
     {
