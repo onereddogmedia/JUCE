@@ -95,8 +95,9 @@ void Thread::threadEntryPoint()
         {
             run();
         }
-        catch (...)
+        catch (std::exception & ex)
         {
+            printf("script failed: \n\t%s\n", ex.what());
             jassertfalse; // Your run() method mustn't throw any exceptions!
         }
     }
