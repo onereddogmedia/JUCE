@@ -541,6 +541,14 @@ public:
         }
     }
 
+    void setTextBoxVisible (const bool visible)
+    {
+        if (valueBox != nullptr)
+        {
+            valueBox->setVisible(visible);
+        }
+    }
+
     void setTextValueSuffix (const String& suffix)
     {
         if (textSuffix != suffix)
@@ -1480,6 +1488,7 @@ bool Slider::isTextBoxEditable() const noexcept                     { return pim
 void Slider::setTextBoxIsEditable (const bool shouldBeEditable)     { pimpl->setTextBoxIsEditable (shouldBeEditable); }
 void Slider::showTextBox()                                          { pimpl->showTextBox(); }
 void Slider::hideTextBox (bool discardCurrentEditorContents)        { pimpl->hideTextBox (discardCurrentEditorContents); }
+void Slider::setTextBoxVisible (const bool visible)                 { pimpl->setTextBoxVisible (visible); }
 
 void Slider::setChangeNotificationOnlyOnRelease (bool onlyNotifyOnRelease)
 {

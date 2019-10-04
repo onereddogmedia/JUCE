@@ -370,6 +370,8 @@ public:
     */
     void hideTextBox (bool discardCurrentEditorContents);
 
+    void setTextBoxVisible (const bool visible);
+
 
     //==============================================================================
     /** Changes the slider's current value.
