@@ -499,6 +499,7 @@ public:
                             auto prefixCue = "Cue" + String (i);
                             metadataValues.set (prefixCue + "Identifier", String (identifier));
                             metadataValues.set (prefixCue + "Offset", String (offset));
+                            metadataValues.set (textBlock.toString(), String (offset));
 
                             auto prefixLabel = "CueLabel" + String (i);
                             metadataValues.set (prefixLabel + "Identifier", String (identifier));
