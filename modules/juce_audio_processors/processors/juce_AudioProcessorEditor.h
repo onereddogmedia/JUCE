@@ -181,7 +181,7 @@ public:
 
     void postOpenURL(const URL& url);
     
-    virtual void handleOpenURL(const URL& url) {}
+	virtual void handleOpenURL(const URL& url) { ignoreUnused(url); }
 
 private:
     //==============================================================================

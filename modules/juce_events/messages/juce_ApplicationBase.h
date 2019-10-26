@@ -205,11 +205,11 @@ public:
     */
     virtual void memoryWarningReceived()     { jassertfalse; }
 
-    /** Called by the operating system when a custim file type was opened. You are expected
-     * to return true of you handled the URL.
+    /** Called by the operating system when a custom file type was opened. You are expected
+     * to return true if you handled the URL.
        At the moment this method is only called on iOS.
     */
-    virtual void urlOpened(const URL& url) {}
+	virtual void urlOpened(const URL& url) { ignoreUnused(url); }
 
     //==============================================================================
     /** Override this method to be informed when the back button is pressed on a device.
