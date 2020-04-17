@@ -537,7 +537,7 @@ public:
             if (discardCurrentEditorContents)
                 updateText();
             
-            valueBox->setVisible(false);
+//            valueBox->setVisible(false);
         }
     }
 
