@@ -103,11 +103,14 @@ namespace Orientations
 using namespace juce;
 
 
-@interface JuceUIView : UIView <UITextViewDelegate>
+@interface JuceUIView : UIView <UITextViewDelegate, UIGestureRecognizerDelegate>
 {
 @public
     UIViewComponentPeer* owner;
     UITextView* hiddenTextView;
+    UIPinchGestureRecognizer *pinchGesture;
+    UIPanGestureRecognizer *panGesture;
+    CGFloat lastPinchScale;
 }
 
 - (JuceUIView*) initWithOwner: (UIViewComponentPeer*) owner withFrame: (CGRect) frame;
@@ -226,7 +229,11 @@ public:
 
     void updateTransformAndScreenBounds();
 
+    void setGestures (bool nativeGesturedEnabled) override;
+
     void handleTouches (UIEvent*, bool isDown, bool isUp, bool isCancel);
+    void handleMagnify (Point<float> pos, float scale);
+    void handleWheel (Point<float> pos, float delta);
 
     //==============================================================================
     void repaint (const Rectangle<int>& area) override;
@@ -462,12 +469,15 @@ MultiTouchMapper<UITouch*> UIViewComponentPeer::currentTouches;
         [numberToolbar sizeToFit];
         hiddenTextView.inputAccessoryView = numberToolbar;
     }
-    
+
+    pinchGesture = nil;
+
     return self;
 }
 
 - (void) dealloc
 {
+    pinchGesture = nil;
     [hiddenTextView removeFromSuperview];
     [hiddenTextView release];
 
@@ -479,6 +489,44 @@ MultiTouchMapper<UITouch*> UIViewComponentPeer::currentTouches;
 {
     if (owner != nullptr)
         owner->drawRect (r);
+}
+
+- (void) addGestures
+{
+    pinchGesture = [[UIPinchGestureRecognizer alloc]initWithTarget:self action:@selector(selectPinch:)];
+    [self addGestureRecognizer: pinchGesture];
+    pinchGesture.delegate = self;
+    lastPinchScale = 0;
+
+    panGesture = [[UIPanGestureRecognizer alloc]initWithTarget:self action:@selector(selectPan:)];
+    panGesture.minimumNumberOfTouches = 2;
+    panGesture.maximumNumberOfTouches = 2;
+    [self addGestureRecognizer: panGesture];
+    panGesture.delegate = self;
+}
+
+- (void) removeGestures
+{
+    [self removeGestureRecognizer: pinchGesture];
+    pinchGesture.delegate = nil;
+    [self removeGestureRecognizer: panGesture];
+    panGesture.delegate = nil;
+}
+
+- (void)selectPinch: (UIPinchGestureRecognizer*)recognizer
+{
+    CGPoint point = [recognizer locationInView:self];
+    CGFloat pinchDelta = recognizer.scale - lastPinchScale;
+    lastPinchScale = recognizer.scale;
+    owner->handleMagnify(Point<float>(point.x, point.y), pinchDelta);
+}
+
+- (void)selectPan: (UIPanGestureRecognizer*)recognizer
+{
+    CGPoint translation = [recognizer translationInView:self];
+    CGPoint pos = CGPointMake(recognizer.view.center.x + translation.x, recognizer.view.center.y + translation.y);
+    [recognizer setTranslation:CGPointZero inView:self];
+    owner->handleWheel(Point<float>(pos.x, pos.y), translation.x / 100.0);
 }
 
 //==============================================================================
@@ -853,6 +901,14 @@ static float getTouchForce (UITouch* touch) noexcept
     return 0.0f;
 }
 
+void UIViewComponentPeer::setGestures (bool nativeGesturesEnabled)
+{
+    if (nativeGesturesEnabled)
+        [view addGestures];
+    else
+        [view removeGestures];
+}
+
 void UIViewComponentPeer::handleTouches (UIEvent* event, const bool isDown, const bool isUp, bool isCancel)
 {
     NSArray* touches = [[event touchesForView: view] allObjects];
@@ -927,6 +983,25 @@ void UIViewComponentPeer::handleTouches (UIEvent* event, const bool isDown, cons
         }
     }
 }
+
+void UIViewComponentPeer::handleMagnify (Point<float> pos, float scaleFactor)
+{
+    const int64 time = Time::currentTimeMillis() - Time::getMillisecondCounter();
+    handleMagnifyGesture (MouseInputSource::InputSourceType::touch, pos, time, scaleFactor, 0);
+}
+
+void UIViewComponentPeer::handleWheel (Point<float> pos, float delta)
+{
+    const int64 time = Time::currentTimeMillis() - Time::getMillisecondCounter();
+    MouseWheelDetails wheel;
+    wheel.deltaX = delta;
+    wheel.deltaY = 0;
+    wheel.isReversed = 0;
+    wheel.isSmooth = true;
+    wheel.isInertial = false;
+    handleMouseWheel (MouseInputSource::InputSourceType::touch, pos, time, wheel, 0);
+}
+
 
 //==============================================================================
 static UIViewComponentPeer* currentlyFocusedPeer = nullptr;
