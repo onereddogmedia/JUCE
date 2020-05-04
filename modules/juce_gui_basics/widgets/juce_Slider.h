@@ -370,7 +370,7 @@ public:
     */
     void hideTextBox (bool discardCurrentEditorContents);
 
-    void setTextBoxVisible (const bool visible);
+    Label* getTextBox();
 
 
     //==============================================================================
@@ -971,7 +971,7 @@ public:
     /** @internal */
     void mouseEnter (const MouseEvent&) override;
 
-protected:
+private:
     //==============================================================================
     JUCE_PUBLIC_IN_DLL_BUILD (class Pimpl)
     std::unique_ptr<Pimpl> pimpl;
