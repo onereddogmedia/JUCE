@@ -75,6 +75,11 @@ public:
    #endif
     void switchApplication();
 
+    bool isHeadphonesConnected() const;
+    
+    bool setInputGain(float val);
+    float getInputGain() const;
+    
 private:
     //==============================================================================
     iOSAudioIODevice (iOSAudioIODeviceType*, const String&, const String&);

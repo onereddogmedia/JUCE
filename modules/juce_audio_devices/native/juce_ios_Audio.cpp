@@ -175,7 +175,7 @@ bool getNotificationValueForKey (NSNotification* notification, NSString* key, NS
 - (void) handleRouteChange: (NSNotification*) notification
 {
     NSUInteger value;
-
+    
     if (juce::getNotificationValueForKey (notification, AVAudioSessionRouteChangeReasonKey, value))
         audioSessionHolder->handleRouteChange ((AVAudioSessionRouteChangeReason) value);
 }
@@ -541,6 +541,26 @@ struct iOSAudioIODevice::Pimpl      : public AudioPlayHead,
         return session.mode == mode;
     }
 
+    bool setInputGain(float val)
+    {
+        NSError * err;
+        
+        JUCE_IOS_AUDIO_LOG("Input gain is settable: "<< (int) [[AVAudioSession sharedInstance] isInputGainSettable]);
+        
+        if (![[AVAudioSession sharedInstance] setInputGain:val error:&err]) {
+            JUCE_IOS_AUDIO_LOG("Error setting input gain: " << err.description);
+        }
+        else {
+            return true;
+        }
+        return false;
+    }
+    
+    float getInputGain() const
+    {
+        return [[AVAudioSession sharedInstance] inputGain];
+    }
+    
     //==============================================================================
     bool canControlTransport() override                    { return interAppAudioConnected; }
 
@@ -745,6 +765,19 @@ struct iOSAudioIODevice::Pimpl      : public AudioPlayHead,
         if (isRunning)
             invokeAudioDeviceErrorCallback (reasonString);
 
+        auto session = [AVAudioSession sharedInstance];
+        auto route = session.currentRoute;
+        headphonesConnected = false;
+        for (AVAudioSessionPortDescription* port in route.outputs)
+        {           
+            if ([[port portType] isEqualToString:AVAudioSessionPortHeadphones] 
+                || [[port portType] isEqualToString:AVAudioSessionPortHeadsetMic]
+                || [[port portType] isEqualToString:AVAudioSessionPortLineOut]
+                || [[port portType] isEqualToString:AVAudioSessionPortUSBAudio]) { 
+                headphonesConnected = true;
+            }
+        }
+        
         switch (reason)
         {
         case AVAudioSessionRouteChangeReasonCategoryChange:
@@ -1053,10 +1086,12 @@ struct iOSAudioIODevice::Pimpl      : public AudioPlayHead,
 
     // If the routing is set to go through the receiver (i.e. the speaker, but quiet), this re-routes it
     // to make it loud. Needed because by default when using an input + output, the output is kept quiet.
-    static void fixAudioRouteIfSetToReceiver()
+    void fixAudioRouteIfSetToReceiver()
     {
         auto session = [AVAudioSession sharedInstance];
         auto route = session.currentRoute;
+
+        headphonesConnected = false;
 
         for (AVAudioSessionPortDescription* port in route.outputs)
         {
@@ -1065,6 +1100,13 @@ struct iOSAudioIODevice::Pimpl      : public AudioPlayHead,
                 JUCE_NSERROR_CHECK ([session overrideOutputAudioPort: AVAudioSessionPortOverrideSpeaker
                                                                error: &error]);
                 setAudioSessionActive (true);
+            }
+            
+            if ([[port portType] isEqualToString:AVAudioSessionPortHeadphones] 
+                || [[port portType] isEqualToString:AVAudioSessionPortHeadsetMic]
+                || [[port portType] isEqualToString:AVAudioSessionPortLineOut]
+                || [[port portType] isEqualToString:AVAudioSessionPortUSBAudio]) { 
+                headphonesConnected = true;
             }
         }
     }
@@ -1321,7 +1363,8 @@ struct iOSAudioIODevice::Pimpl      : public AudioPlayHead,
     Array<int> availableBufferSizes;
 
     bool interAppAudioConnected = false;
-
+    bool headphonesConnected = false;
+    
     MidiMessageCollector* messageCollector = nullptr;
 
     WeakReference<iOSAudioIODeviceType> deviceType;
@@ -1397,6 +1440,12 @@ Image iOSAudioIODevice::getIcon (int size)                          { return pim
 #endif
 void iOSAudioIODevice::switchApplication()                          { return pimpl->switchApplication(); }
 
+bool iOSAudioIODevice::isHeadphonesConnected() const                { return pimpl->headphonesConnected; }
+
+bool iOSAudioIODevice::setInputGain (float val)  { return pimpl->setInputGain(val); }
+float iOSAudioIODevice::getInputGain () const  { return pimpl->getInputGain(); }
+
+    
 //==============================================================================
 iOSAudioIODeviceType::iOSAudioIODeviceType()
     : AudioIODeviceType (iOSAudioDeviceName)
