@@ -275,8 +275,12 @@ struct JavascriptEngine::RootObject   : public DynamicObject
 
         ResultCode perform (const Scope& s, var* returnedValue) const override
         {
+            juce::Thread* thread = juce::Thread::getCurrentThread();
+
             for (auto* statement : statements)
-                if (auto r = statement->perform (s, returnedValue))
+                if (thread->threadShouldExit())
+                    return ok;
+                else if (auto r = statement->perform (s, returnedValue))
                     return r;
 
             return ok;
