@@ -82,6 +82,7 @@ bool ComponentPeer::isKioskMode() const
 //==============================================================================
 void ComponentPeer::setGestures (bool nativeGesturesEnabled)
 {
+    ignoreUnused(nativeGesturesEnabled);
 }
 
 //==============================================================================
