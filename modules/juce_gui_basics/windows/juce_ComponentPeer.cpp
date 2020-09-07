@@ -80,6 +80,12 @@ bool ComponentPeer::isKioskMode() const
 }
 
 //==============================================================================
+void ComponentPeer::setGestures (bool nativeGesturesEnabled)
+{
+    ignoreUnused(nativeGesturesEnabled);
+}
+
+//==============================================================================
 void ComponentPeer::handleMouseEvent (MouseInputSource::InputSourceType type, Point<float> pos, ModifierKeys newMods,
                                       float newPressure, float newOrientation, int64 time, PenDetails pen, int touchIndex)
 {
