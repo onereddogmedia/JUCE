@@ -234,7 +234,7 @@ public:
 
     void updateScreenBounds();
 
-    void UIViewComponentPeer::setGestures (bool nativeGesturesEnabled);
+    void setGestures (bool nativeGesturesEnabled) override;
     
     void handleTouches (UIEvent*, bool isDown, bool isUp, bool isCancel);
 

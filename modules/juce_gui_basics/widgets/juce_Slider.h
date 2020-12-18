@@ -369,6 +369,7 @@ public:
     */
     void hideTextBox (bool discardCurrentEditorContents);
 
+    Label* getTextBox();
 
     //==============================================================================
     /** Changes the slider's current value.
