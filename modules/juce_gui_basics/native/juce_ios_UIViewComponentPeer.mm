@@ -114,6 +114,9 @@ using namespace juce;
 @public
     UIViewComponentPeer* owner;
     UITextView* hiddenTextView;
+    UIPinchGestureRecognizer *pinchGesture;
+    UIPanGestureRecognizer *panGesture;
+    CGFloat lastPinchScale;
 }
 
 - (JuceUIView*) initWithOwner: (UIViewComponentPeer*) owner withFrame: (CGRect) frame;
@@ -237,6 +240,8 @@ public:
     void setGestures (bool nativeGesturesEnabled) override;
     
     void handleTouches (UIEvent*, bool isDown, bool isUp, bool isCancel);
+    void handleMagnify (Point<float> pos, float scale);
+    void handleWheel (Point<float> pos, float delta);
 
     //==============================================================================
     void repaint (const Rectangle<int>& area) override;
@@ -425,12 +430,15 @@ MultiTouchMapper<UITouch*> UIViewComponentPeer::currentTouches;
         [numberToolbar sizeToFit];
         hiddenTextView.inputAccessoryView = numberToolbar;
     }
-    
+
+    pinchGesture = nil;
+
     return self;
 }
 
 - (void) dealloc
 {
+    pinchGesture = nil;
     [hiddenTextView removeFromSuperview];
     [hiddenTextView release];
 
@@ -907,6 +915,24 @@ void UIViewComponentPeer::handleTouches (UIEvent* event, const bool isDown, cons
                 return;
         }
     }
+}
+
+void UIViewComponentPeer::handleMagnify (Point<float> pos, float scaleFactor)
+{
+    const int64 time = Time::currentTimeMillis() - Time::getMillisecondCounter();
+    handleMagnifyGesture (MouseInputSource::InputSourceType::touch, pos, time, scaleFactor, 0);
+}
+
+void UIViewComponentPeer::handleWheel (Point<float> pos, float delta)
+{
+    const int64 time = Time::currentTimeMillis() - Time::getMillisecondCounter();
+    MouseWheelDetails wheel;
+    wheel.deltaX = delta;
+    wheel.deltaY = 0;
+    wheel.isReversed = 0;
+    wheel.isSmooth = true;
+    wheel.isInertial = false;
+    handleMouseWheel (MouseInputSource::InputSourceType::touch, pos, time, wheel, 0);
 }
 
 //==============================================================================
