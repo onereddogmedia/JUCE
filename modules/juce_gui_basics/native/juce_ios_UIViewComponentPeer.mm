@@ -109,7 +109,7 @@ struct AsyncBoundsUpdater  : public AsyncUpdater
 using namespace juce;
 
 
-@interface JuceUIView : UIView <UITextViewDelegate>
+@interface JuceUIView : UIView <UITextViewDelegate, UIGestureRecognizerDelegate>
 {
 @public
     UIViewComponentPeer* owner;
