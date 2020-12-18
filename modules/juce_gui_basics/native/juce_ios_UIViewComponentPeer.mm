@@ -234,6 +234,8 @@ public:
 
     void updateScreenBounds();
 
+    void UIViewComponentPeer::setGestures (bool nativeGesturesEnabled);
+    
     void handleTouches (UIEvent*, bool isDown, bool isUp, bool isCancel);
 
     //==============================================================================
@@ -792,6 +794,14 @@ static float getTouchForce (UITouch* touch) noexcept
         return (float) touch.force;
 
     return 0.0f;
+}
+
+void UIViewComponentPeer::setGestures (bool nativeGesturesEnabled)
+{
+    if (nativeGesturesEnabled)
+        [view addGestures];
+    else
+        [view removeGestures];
 }
 
 void UIViewComponentPeer::handleTouches (UIEvent* event, const bool isDown, const bool isUp, bool isCancel)
