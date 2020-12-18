@@ -209,7 +209,7 @@ public:
      * to return true of you handled the URL.
        At the moment this method is only called on iOS.
     */
-    virtual void urlOpened(const URL& url) {}
+    virtual void urlOpened(const URL& url) { juce::ignoreUnused (url); }
 
     //==============================================================================
     /** This will be called when the back button on a device is pressed. The return value
