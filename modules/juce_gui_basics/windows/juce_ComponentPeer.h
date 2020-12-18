@@ -319,6 +319,9 @@ public:
     virtual void setAlpha (float newAlpha) = 0;
 
     //==============================================================================
+    virtual void setGestures (bool nativeGesturesEnabled);
+
+    //==============================================================================
     void handleMouseEvent (MouseInputSource::InputSourceType type, Point<float> positionWithinPeer, ModifierKeys newMods, float pressure,
                            float orientation, int64 time, PenDetails pen = {}, int touchIndex = 0);
 
