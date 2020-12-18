@@ -540,6 +540,11 @@ public:
         }
     }
 
+    Label* getTextBox()
+    {
+        return valueBox.get();
+    }
+
     void setTextValueSuffix (const String& suffix)
     {
         if (textSuffix != suffix)
