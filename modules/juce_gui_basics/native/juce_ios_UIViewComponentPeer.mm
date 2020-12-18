@@ -444,6 +444,36 @@ MultiTouchMapper<UITouch*> UIViewComponentPeer::currentTouches;
         owner->drawRect (r);
 }
 
+- (void) addGestures
+{
+    pinchGesture = [[UIPinchGestureRecognizer alloc]initWithTarget:self action:@selector(selectPinch:)];
+    [self addGestureRecognizer: pinchGesture];
+    pinchGesture.delegate = self;
+    lastPinchScale = 0;
+
+    panGesture = [[UIPanGestureRecognizer alloc]initWithTarget:self action:@selector(selectPan:)];
+    panGesture.minimumNumberOfTouches = 2;
+    panGesture.maximumNumberOfTouches = 2;
+    [self addGestureRecognizer: panGesture];
+    panGesture.delegate = self;
+}
+
+- (void) removeGestures
+{
+    [self removeGestureRecognizer: pinchGesture];
+    pinchGesture.delegate = nil;
+    [self removeGestureRecognizer: panGesture];
+    panGesture.delegate = nil;
+}
+
+- (void)selectPinch: (UIPinchGestureRecognizer*)recognizer
+{
+    CGPoint point = [recognizer locationInView:self];
+    CGFloat pinchDelta = recognizer.scale - lastPinchScale;
+    lastPinchScale = recognizer.scale;
+    owner->handleMagnify(Point<float>(point.x, point.y), pinchDelta);
+}
+
 //==============================================================================
 - (void) touchesBegan: (NSSet*) touches withEvent: (UIEvent*) event
 {
@@ -1006,36 +1036,6 @@ void UIViewComponentPeer::drawRect (CGRect r)
     insideDrawRect = true;
     handlePaint (g);
     insideDrawRect = false;
-}
-
-- (void) addGestures
-{
-    pinchGesture = [[UIPinchGestureRecognizer alloc]initWithTarget:self action:@selector(selectPinch:)];
-    [self addGestureRecognizer: pinchGesture];
-    pinchGesture.delegate = self;
-    lastPinchScale = 0;
-
-    panGesture = [[UIPanGestureRecognizer alloc]initWithTarget:self action:@selector(selectPan:)];
-    panGesture.minimumNumberOfTouches = 2;
-    panGesture.maximumNumberOfTouches = 2;
-    [self addGestureRecognizer: panGesture];
-    panGesture.delegate = self;
-}
-
-- (void) removeGestures
-{
-    [self removeGestureRecognizer: pinchGesture];
-    pinchGesture.delegate = nil;
-    [self removeGestureRecognizer: panGesture];
-    panGesture.delegate = nil;
-}
-
-- (void)selectPinch: (UIPinchGestureRecognizer*)recognizer
-{
-    CGPoint point = [recognizer locationInView:self];
-    CGFloat pinchDelta = recognizer.scale - lastPinchScale;
-    lastPinchScale = recognizer.scale;
-    owner->handleMagnify(Point<float>(point.x, point.y), pinchDelta);
 }
 
 bool UIViewComponentPeer::canBecomeKeyWindow()
