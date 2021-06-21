@@ -334,8 +334,9 @@ MultiTouchMapper<UITouch*> UIViewComponentPeer::currentTouches;
 
 - (BOOL) prefersStatusBarHidden
 {
-    if (isKioskModeView (self))
-        return true;
+// Appears to be a bug in IOS 14.x, set UIStatusBarHidden=NO
+//    if (isKioskModeView (self))
+//        return true;
 
     return [[[NSBundle mainBundle] objectForInfoDictionaryKey: @"UIStatusBarHidden"] boolValue];
 }
