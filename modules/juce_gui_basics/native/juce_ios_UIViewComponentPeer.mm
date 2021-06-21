@@ -456,7 +456,15 @@ MultiTouchMapper<UITouch*> UIViewComponentPeer::currentTouches;
     CGPoint point = [recognizer locationInView:self];
     CGFloat pinchDelta = recognizer.scale - lastPinchScale;
     lastPinchScale = recognizer.scale;
-    owner->handleMagnify(Point<float>(point.x, point.y), pinchDelta);
+    owner->handleMagnify(juce::Point<float>((float)point.x, (float)point.y), (float)pinchDelta);
+}
+
+- (void)selectPan: (UIPanGestureRecognizer*)recognizer
+{
+    CGPoint translation = [recognizer translationInView:self];
+    CGPoint pos = CGPointMake(recognizer.view.center.x + translation.x, recognizer.view.center.y + translation.y);
+    [recognizer setTranslation:CGPointZero inView:self];
+    owner->handleWheel(juce::Point<float>((float)pos.x, (float)pos.y), (float)(translation.x / 100.0));
 }
 
 //==============================================================================

@@ -455,9 +455,9 @@ namespace juce
                 jassertfalse;
             }
 
-            if (auto *app = JUCEApplicationBase::getInstance())
+            if (auto *a = JUCEApplicationBase::getInstance())
             {
-                app->urlOpened(juceUrl);
+                a->urlOpened(juceUrl);
             }
             else
             {
