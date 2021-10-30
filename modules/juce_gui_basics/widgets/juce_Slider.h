@@ -702,6 +702,9 @@ public:
     */
     void setScrollWheelEnabled (bool enabled);
 
+    /** Returns true if the scroll wheel can move the slider. */
+    bool isScrollWheelEnabled() const noexcept;
+
     /** Returns a number to indicate which thumb is currently being dragged by the mouse.
 
         This will return 0 for the main thumb, 1 for the minimum-value thumb, 2 for
@@ -885,6 +888,27 @@ public:
     };
 
     //==============================================================================
+    /** An RAII class for sending slider listener drag messages.
+
+        This is useful if you are programatically updating the slider's value and want
+        to imitate a mouse event, for example in a custom AccessibilityHandler.
+
+        @see Slider::Listener
+    */
+    class JUCE_API  ScopedDragNotification
+    {
+    public:
+        explicit ScopedDragNotification (Slider&);
+        ~ScopedDragNotification();
+
+    private:
+        Slider& sliderBeingDragged;
+
+        JUCE_DECLARE_NON_MOVEABLE (ScopedDragNotification)
+        JUCE_DECLARE_NON_COPYABLE (ScopedDragNotification)
+    };
+
+    //==============================================================================
     /** This abstract base class is implemented by LookAndFeel classes to provide
         slider drawing functionality.
     */
@@ -974,6 +998,7 @@ protected:
     JUCE_PUBLIC_IN_DLL_BUILD (class Pimpl)
     std::unique_ptr<Pimpl> pimpl;
 
+    std::unique_ptr<AccessibilityHandler> createAccessibilityHandler() override;
     void init (SliderStyle, TextEntryBoxPosition);
 
    #if JUCE_CATCH_DEPRECATED_CODE_MISUSE
