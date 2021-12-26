@@ -109,8 +109,6 @@ enum class MouseEventFlags
 
 using namespace juce;
 
-<<<<<<< HEAD
-
 @interface JuceUIView : UIView <UITextViewDelegate, UIGestureRecognizerDelegate>
 {
 @public
@@ -444,7 +442,6 @@ MultiTouchMapper<UITouch*> UIViewComponentPeer::currentTouches;
     hiddenTextView.inputAssistantItem.leadingBarButtonGroups = @[];
     hiddenTextView.inputAssistantItem.trailingBarButtonGroups = @[];
 
-<<<<<<< HEAD
     if (SystemStats::getDeviceDescription().contains("iPhone")) {
         UIToolbar *numberToolbar = [UIToolbar new];
         numberToolbar.barStyle = UIBarStyleDefault;
@@ -932,7 +929,6 @@ static float getTouchForce (UITouch* touch) noexcept
     return 0.0f;
 }
 
-<<<<<<< HEAD
 void UIViewComponentPeer::setGestures (bool nativeGesturesEnabled)
 {
     if (nativeGesturesEnabled)
@@ -1020,7 +1016,6 @@ void UIViewComponentPeer::handleTouches (UIEvent* event, MouseEventFlags mouseEv
     }
 }
 
-<<<<<<< HEAD
 void UIViewComponentPeer::handleMagnify (Point<float> pos, float scaleFactor)
 {
     const int64 time = Time::currentTimeMillis() - Time::getMillisecondCounter();
@@ -1038,7 +1033,7 @@ void UIViewComponentPeer::handleWheel (Point<float> pos, float delta)
     wheel.isInertial = false;
     handleMouseWheel (MouseInputSource::InputSourceType::touch, pos, time, wheel, 0);
 }
-=======
+
 #if JUCE_HAS_IOS_POINTER_SUPPORT
 void UIViewComponentPeer::onHover (UIHoverGestureRecognizer* gesture)
 {
