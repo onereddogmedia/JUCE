@@ -192,14 +192,16 @@ namespace DirectWriteTypeLayout
             for (int i = 0; i < attributedString.getNumAttributes(); ++i)
             {
                 auto& font = attributedString.getAttribute(i).font;
+                auto typeface = font.getTypefacePtr();
 
-                if (auto* wt = dynamic_cast<WindowsDirectWriteTypeface*> (font.getTypeface()))
+                if (auto* wt = dynamic_cast<WindowsDirectWriteTypeface*> (typeface.get()))
                     if (wt->getIDWriteFontFace() == glyphRun.fontFace)
                         return font.withHeight (fontHeight);
             }
 
             ComSmartPtr<IDWriteFont> dwFont;
             auto hr = fontCollection.GetFontFromFontFace (glyphRun.fontFace, dwFont.resetAndGetPointerAddress());
+            ignoreUnused (hr);
             jassert (dwFont != nullptr);
 
             ComSmartPtr<IDWriteFontFamily> dwFontFamily;
@@ -288,6 +290,7 @@ namespace DirectWriteTypeLayout
 
             ComSmartPtr<IDWriteFontFamily> fontFamily;
             auto hr = fontCollection.GetFontFamily (fontIndex, fontFamily.resetAndGetPointerAddress());
+            ignoreUnused (hr);
 
             ComSmartPtr<IDWriteFont> dwFont;
             uint32 fontFacesCount = 0;
@@ -334,7 +337,7 @@ namespace DirectWriteTypeLayout
         Font defaultFont;
         BOOL fontFound = false;
         uint32 fontIndex;
-        fontCollection.FindFamilyName (defaultFont.getTypeface()->getName().toWideCharPointer(), &fontIndex, &fontFound);
+        fontCollection.FindFamilyName (defaultFont.getTypefacePtr()->getName().toWideCharPointer(), &fontIndex, &fontFound);
 
         if (! fontFound)
             fontIndex = 0;
@@ -393,6 +396,7 @@ namespace DirectWriteTypeLayout
 
         UINT32 actualLineCount = 0;
         auto hr = dwTextLayout->GetLineMetrics (nullptr, 0, &actualLineCount);
+        ignoreUnused (hr);
 
         layout.ensureStorageAllocated ((int) actualLineCount);
 
@@ -414,7 +418,7 @@ namespace DirectWriteTypeLayout
             line.stringRange = Range<int> (lastLocation, lastLocation + (int) dwLineMetrics[i].length);
             line.lineOrigin.y += yAdjustment;
             yAdjustment += extraLineSpacing;
-            lastLocation += dwLineMetrics[i].length;
+            lastLocation += (int) dwLineMetrics[i].length;
         }
     }
 
@@ -443,8 +447,9 @@ static bool canAllTypefacesAndFontsBeUsedInLayout (const AttributedString& text)
     for (int i = 0; i < numCharacterAttributes; ++i)
     {
         const auto& font = text.getAttribute (i).font;
+        auto typeface = font.getTypefacePtr();
 
-        if (font.getHorizontalScale() != 1.0f || dynamic_cast<WindowsDirectWriteTypeface*> (font.getTypeface()) == nullptr)
+        if (font.getHorizontalScale() != 1.0f || dynamic_cast<WindowsDirectWriteTypeface*> (typeface.get()) == nullptr)
             return false;
     }
 
