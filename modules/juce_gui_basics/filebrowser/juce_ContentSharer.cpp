@@ -23,60 +23,49 @@
   ==============================================================================
 */
 
-namespace juce
-{
+namespace juce {
 
 #if JUCE_CONTENT_SHARING
 //==============================================================================
-class ContentSharer::PrepareImagesThread    : private Thread
-{
-public:
-    PrepareImagesThread (ContentSharer& cs, const Array<Image>& imagesToUse,
-                         ImageFileFormat* imageFileFormatToUse)
-        : Thread ("ContentSharer::PrepareImagesThread"),
-          owner (cs),
-          images (imagesToUse),
-          imageFileFormat (imageFileFormatToUse == nullptr ? new PNGImageFormat()
-                                                           : imageFileFormatToUse),
-          extension (imageFileFormat->getFormatName().toLowerCase())
-    {
+class ContentSharer::PrepareImagesThread : private Thread {
+  public:
+    PrepareImagesThread(ContentSharer& cs, const Array<Image>& imagesToUse, ImageFileFormat* imageFileFormatToUse)
+        : Thread("ContentSharer::PrepareImagesThread"), owner(cs), images(imagesToUse),
+          imageFileFormat(imageFileFormatToUse == nullptr ? new PNGImageFormat() : imageFileFormatToUse),
+          extension(imageFileFormat->getFormatName().toLowerCase()) {
         startThread();
     }
 
-    ~PrepareImagesThread() override
-    {
+    ~PrepareImagesThread() override {
         signalThreadShouldExit();
-        waitForThreadToExit (10000);
+        waitForThreadToExit(10000);
     }
 
-private:
-    void run() override
-    {
-        for (const auto& image : images)
-        {
+  private:
+    void run() override {
+        for (const auto& image : images) {
             if (threadShouldExit())
                 return;
 
-            File tempFile = File::createTempFile (extension);
+            File tempFile = File::createTempFile(extension);
 
-            if (! tempFile.create().wasOk())
+            if (!tempFile.create().wasOk())
                 break;
 
-            std::unique_ptr<FileOutputStream> outputStream (tempFile.createOutputStream());
+            std::unique_ptr<FileOutputStream> outputStream(tempFile.createOutputStream());
 
             if (outputStream == nullptr)
                 break;
 
-            if (imageFileFormat->writeImageToStream (image, *outputStream))
-                owner.temporaryFiles.add (tempFile);
+            if (imageFileFormat->writeImageToStream(image, *outputStream))
+                owner.temporaryFiles.add(tempFile);
         }
 
         finish();
     }
 
-    void finish()
-    {
-        MessageManager::callAsync ([this]() { owner.filesToSharePrepared(); });
+    void finish() {
+        MessageManager::callAsync([this]() { owner.filesToSharePrepared(); });
     }
 
     ContentSharer& owner;
@@ -86,57 +75,47 @@ private:
 };
 
 //==============================================================================
-class ContentSharer::PrepareDataThread    : private Thread
-{
-public:
-    PrepareDataThread (ContentSharer& cs, const MemoryBlock& mb)
-        : Thread ("ContentSharer::PrepareDataThread"),
-          owner (cs),
-          data (mb)
-    {
+class ContentSharer::PrepareDataThread : private Thread {
+  public:
+    PrepareDataThread(ContentSharer& cs, const MemoryBlock& mb)
+        : Thread("ContentSharer::PrepareDataThread"), owner(cs), data(mb) {
         startThread();
     }
 
-    ~PrepareDataThread() override
-    {
+    ~PrepareDataThread() override {
         signalThreadShouldExit();
-        waitForThreadToExit (10000);
+        waitForThreadToExit(10000);
     }
 
-private:
-    void run() override
-    {
-        File tempFile = File::createTempFile ("data");
+  private:
+    void run() override {
+        File tempFile = File::createTempFile("data");
 
-        if (tempFile.create().wasOk())
-        {
-            if (auto outputStream = std::unique_ptr<FileOutputStream> (tempFile.createOutputStream()))
-            {
+        if (tempFile.create().wasOk()) {
+            if (auto outputStream = std::unique_ptr<FileOutputStream>(tempFile.createOutputStream())) {
                 size_t pos = 0;
                 size_t totalSize = data.getSize();
 
-                while (pos < totalSize)
-                {
+                while (pos < totalSize) {
                     if (threadShouldExit())
                         return;
 
-                    size_t numToWrite = std::min ((size_t) 8192, totalSize - pos);
+                    size_t numToWrite = std::min((size_t)8192, totalSize - pos);
 
-                    outputStream->write (data.begin() + pos, numToWrite);
+                    outputStream->write(data.begin() + pos, numToWrite);
 
                     pos += numToWrite;
                 }
 
-                owner.temporaryFiles.add (tempFile);
+                owner.temporaryFiles.add(tempFile);
             }
         }
 
         finish();
     }
 
-    void finish()
-    {
-        MessageManager::callAsync ([this]() { owner.filesToSharePrepared(); });
+    void finish() {
+        MessageManager::callAsync([this]() { owner.filesToSharePrepared(); });
     }
 
     ContentSharer& owner;
@@ -145,34 +124,35 @@ private:
 #endif
 
 //==============================================================================
-JUCE_IMPLEMENT_SINGLETON (ContentSharer)
+JUCE_IMPLEMENT_SINGLETON(ContentSharer)
 
-ContentSharer::ContentSharer() {}
-ContentSharer::~ContentSharer() { clearSingletonInstance(); }
+ContentSharer::ContentSharer() {
+}
+ContentSharer::~ContentSharer() {
+    clearSingletonInstance();
+}
 
-void ContentSharer::shareFiles (const Array<URL>& files,
-                                std::function<void (bool, const String&)> callbackToUse)
-{
-  #if JUCE_CONTENT_SHARING
-    startNewShare (callbackToUse);
-    pimpl->shareFiles (files);
-  #else
-    ignoreUnused (files);
+void ContentSharer::shareFiles(const Array<URL>& files, std::function<void(bool, const String&)> callbackToUse,
+                               Component* parentComponent) {
+#if JUCE_CONTENT_SHARING
+    startNewShare(callbackToUse, parentComponent);
+    pimpl->shareFiles(files);
+#else
+    ignoreUnused(files, parentComponent);
 
     // Content sharing is not available on this platform!
     jassertfalse;
 
     if (callbackToUse)
-        callbackToUse (false, "Content sharing is not available on this platform!");
-  #endif
+        callbackToUse(false, "Content sharing is not available on this platform!");
+#endif
 }
 
 #if JUCE_CONTENT_SHARING
-void ContentSharer::startNewShare (std::function<void (bool, const String&)> callbackToUse)
-{
+void ContentSharer::startNewShare(std::function<void(bool, const String&)> callbackToUse, Component* parentComponent) {
     // You should not start another sharing operation before the previous one is finished.
     // Forcibly stopping a previous sharing operation is rarely a good idea!
-    jassert (pimpl == nullptr);
+    jassert(pimpl == nullptr);
     pimpl.reset();
 
     prepareDataThread = nullptr;
@@ -181,96 +161,90 @@ void ContentSharer::startNewShare (std::function<void (bool, const String&)> cal
     deleteTemporaryFiles();
 
     // You need to pass a valid callback.
-    jassert (callbackToUse);
-    callback = std::move (callbackToUse);
+    jassert(callbackToUse);
+    callback = std::move(callbackToUse);
+    parent = parentComponent;
 
-    pimpl.reset (createPimpl());
+    pimpl.reset(createPimpl());
 }
 #endif
 
-void ContentSharer::shareText (const String& text,
-                               std::function<void (bool, const String&)> callbackToUse)
-{
-  #if JUCE_CONTENT_SHARING
-    startNewShare (callbackToUse);
-    pimpl->shareText (text);
-  #else
-    ignoreUnused (text);
+void ContentSharer::shareText(const String& text, std::function<void(bool, const String&)> callbackToUse,
+                              Component* parentComponent) {
+#if JUCE_CONTENT_SHARING
+    startNewShare(callbackToUse, parentComponent);
+    pimpl->shareText(text);
+#else
+    ignoreUnused(text, parentComponent);
 
     // Content sharing is not available on this platform!
     jassertfalse;
 
     if (callbackToUse)
-        callbackToUse (false, "Content sharing is not available on this platform!");
-  #endif
+        callbackToUse(false, "Content sharing is not available on this platform!");
+#endif
 }
 
-void ContentSharer::shareImages (const Array<Image>& images,
-                                 std::function<void (bool, const String&)> callbackToUse,
-                                 ImageFileFormat* imageFileFormatToUse)
-{
-  #if JUCE_CONTENT_SHARING
-    startNewShare (callbackToUse);
-    prepareImagesThread.reset (new PrepareImagesThread (*this, images, imageFileFormatToUse));
-  #else
-    ignoreUnused (images, imageFileFormatToUse);
+void ContentSharer::shareImages(const Array<Image>& images, std::function<void(bool, const String&)> callbackToUse,
+                                ImageFileFormat* imageFileFormatToUse, Component* parentComponent) {
+#if JUCE_CONTENT_SHARING
+    startNewShare(callbackToUse, parentComponent);
+    prepareImagesThread.reset(new PrepareImagesThread(*this, images, imageFileFormatToUse));
+#else
+    ignoreUnused(images, imageFileFormatToUse, parentComponent);
 
     // Content sharing is not available on this platform!
     jassertfalse;
 
     if (callbackToUse)
-        callbackToUse (false, "Content sharing is not available on this platform!");
-  #endif
+        callbackToUse(false, "Content sharing is not available on this platform!");
+#endif
 }
 
 #if JUCE_CONTENT_SHARING
-void ContentSharer::filesToSharePrepared()
-{
+void ContentSharer::filesToSharePrepared() {
     Array<URL> urls;
 
     for (const auto& tempFile : temporaryFiles)
-        urls.add (URL (tempFile));
+        urls.add(URL(tempFile));
 
     prepareImagesThread = nullptr;
     prepareDataThread = nullptr;
 
-    pimpl->shareFiles (urls);
+    pimpl->shareFiles(urls);
 }
 #endif
 
-void ContentSharer::shareData (const MemoryBlock& mb,
-                               std::function<void (bool, const String&)> callbackToUse)
-{
-  #if JUCE_CONTENT_SHARING
-    startNewShare (callbackToUse);
-    prepareDataThread.reset (new PrepareDataThread (*this, mb));
-  #else
-    ignoreUnused (mb);
+void ContentSharer::shareData(const MemoryBlock& mb, std::function<void(bool, const String&)> callbackToUse,
+                              Component* parentComponent) {
+#if JUCE_CONTENT_SHARING
+    startNewShare(callbackToUse, parentComponent);
+    prepareDataThread.reset(new PrepareDataThread(*this, mb));
+#else
+    ignoreUnused(mb, parentComponent);
 
     if (callbackToUse)
-        callbackToUse (false, "Content sharing not available on this platform!");
-  #endif
+        callbackToUse(false, "Content sharing not available on this platform!");
+#endif
 }
 
-void ContentSharer::sharingFinished (bool succeeded, const String& errorDescription)
-{
+void ContentSharer::sharingFinished(bool succeeded, const String& errorDescription) {
     deleteTemporaryFiles();
 
-    std::function<void (bool, String)> cb;
-    std::swap (cb, callback);
+    std::function<void(bool, String)> cb;
+    std::swap(cb, callback);
 
-    String error (errorDescription);
+    String error(errorDescription);
 
-  #if JUCE_CONTENT_SHARING
+#if JUCE_CONTENT_SHARING
     pimpl.reset();
-  #endif
+#endif
 
     if (cb)
-        cb (succeeded, error);
+        cb(succeeded, error);
 }
 
-void ContentSharer::deleteTemporaryFiles()
-{
+void ContentSharer::deleteTemporaryFiles() {
     for (auto& f : temporaryFiles)
         f.deleteFile();
 
