@@ -224,13 +224,11 @@ void AudioProcessorEditor::postOpenURL(const URL& url)
 typedef ComponentPeer* (*createUnityPeerFunctionType) (Component&);
 createUnityPeerFunctionType juce_createUnityPeerFn = nullptr;
 
-ComponentPeer* AudioProcessorEditor::createNewPeer (int styleFlags, void* nativeWindow)
+ComponentPeer* AudioProcessorEditor::createNewPeer ([[maybe_unused]] int styleFlags,
+                                                    [[maybe_unused]] void* nativeWindow)
 {
     if (juce_createUnityPeerFn != nullptr)
-    {
-        ignoreUnused (styleFlags, nativeWindow);
         return juce_createUnityPeerFn (*this);
-    }
 
     return Component::createNewPeer (styleFlags, nativeWindow);
 }

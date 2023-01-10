@@ -188,7 +188,6 @@ bool ComponentPeer::handleKeyPress (const int keyCode, const juce_wchar textChar
                                      textCharacter));
 }
 
-
 bool ComponentPeer::handleKeyPress (const KeyPress& keyInfo)
 {
     bool keyWasUsed = false;
@@ -593,8 +592,8 @@ void ComponentPeer::setRepresentedFile (const File&)
 }
 
 //==============================================================================
-int ComponentPeer::getCurrentRenderingEngine() const            { return 0; }
-void ComponentPeer::setCurrentRenderingEngine (int index)       { jassert (index == 0); ignoreUnused (index); }
+int ComponentPeer::getCurrentRenderingEngine() const                             { return 0; }
+void ComponentPeer::setCurrentRenderingEngine ([[maybe_unused]] int index)       { jassert (index == 0); }
 
 //==============================================================================
 std::function<ModifierKeys()> ComponentPeer::getNativeRealtimeModifiers = nullptr;
@@ -613,7 +612,7 @@ void ComponentPeer::forceDisplayUpdate()
     Desktop::getInstance().displays->refresh();
 }
 
-void ComponentPeer::globalFocusChanged (Component*)
+void ComponentPeer::globalFocusChanged ([[maybe_unused]] Component* comp)
 {
     refreshTextInputTarget();
 }
