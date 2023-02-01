@@ -1013,16 +1013,12 @@ private:
             shouldShowNotification = newInputMutedValue;
             notification.setVisible (shouldShowNotification);
 
-           #if JUCE_IOS || JUCE_ANDROID
-            resized();
-           #else
             if (editor != nullptr)
             {
                 const int extraHeight = shouldShowNotification ? NotificationArea::height : 0;
                 const auto rect = getSizeToContainEditor();
                 setSize (rect.getWidth(), rect.getHeight() + extraHeight);
             }
-           #endif
         }
 
         void valueChanged (Value& value) override     { inputMutedChanged (value.getValue()); }
