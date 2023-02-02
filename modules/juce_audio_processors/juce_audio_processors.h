@@ -176,6 +176,7 @@
 // If you're implementing a plugin, you should supply a body for
 // this function in your own code.
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter();
+juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter(uint32_t componentType);
 
 // If you are implementing an ARA enabled plugin, you need to
 // implement this function somewhere in the codebase by returning

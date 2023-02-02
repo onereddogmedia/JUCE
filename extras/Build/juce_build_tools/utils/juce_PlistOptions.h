@@ -102,6 +102,7 @@ namespace build_tools
         void addIosBackgroundModes (XmlElement&) const;
         Array<XmlElement> createExtraAudioUnitTargetPlistOptions() const;
         Array<XmlElement> createExtraAudioUnitV3TargetPlistOptions() const;
+        void addExtension(XmlElement* componentArray, const String& componentType) const;
     };
 }
 }
