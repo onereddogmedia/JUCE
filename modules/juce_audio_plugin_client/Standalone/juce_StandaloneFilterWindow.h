@@ -128,7 +128,7 @@ public:
         processor->disableNonMainBuses();
         processor->setRateAndBufferSizeDetails (44100, 512);
 
-        processorHasPotentialFeedbackLoop = (getNumInputChannels() > 0 && getNumOutputChannels() > 0);
+        processorHasPotentialFeedbackLoop = false;//(getNumInputChannels() > 0 && getNumOutputChannels() > 0);
     }
 
     virtual void deletePlugin()
@@ -323,7 +323,7 @@ public:
             savedState = settings->getXmlValue ("audioSetup");
 
            #if ! (JUCE_IOS || JUCE_ANDROID)
-            shouldMuteInput.setValue (settings->getBoolValue ("shouldMuteInput", true));
+            shouldMuteInput.setValue (settings->getBoolValue ("shouldMuteInput", false));
            #endif
         }
 
