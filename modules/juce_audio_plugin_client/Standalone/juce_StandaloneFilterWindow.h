@@ -83,7 +83,7 @@ public:
           autoOpenMidiDevices (shouldAutoOpenMidiDevices)
     {
         shouldMuteInput.addListener (this);
-        shouldMuteInput = ! isInterAppAudioConnected();
+        shouldMuteInput = false;//! isInterAppAudioConnected();
 
         createPlugin();
 
