@@ -326,7 +326,7 @@ public:
 
        #if JUCE_IOS
         if (backgroundProcessCheck.isBackgroundProcess())
-            return RenderStatus::noWork;
+            return RenderStatus::nominal;
        #endif
 
         std::optional<MessageManager::Lock::ScopedTryLockType> scopedLock;

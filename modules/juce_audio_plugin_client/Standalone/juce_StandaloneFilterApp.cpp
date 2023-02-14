@@ -131,7 +131,17 @@ public:
     void urlOpened(const URL& url) override
     {
         AudioProcessorEditor* editor = mainWindow->getAudioProcessor()->getActiveEditor();
-        editor->postOpenURL(url);
+        if (editor)
+            editor->postOpenURL(url);
+    }
+    
+    void resumed() override {
+        AudioProcessorEditor* editor = mainWindow->getAudioProcessor()->getActiveEditor();
+        if (editor)
+        {
+            editor->resized();
+            editor->repaint();
+        }
     }
 
 protected:
