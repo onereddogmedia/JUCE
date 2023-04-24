@@ -432,7 +432,19 @@ struct InAppPurchases::Pimpl   : public SKDelegateAndPaymentObserver
         auto purchaseTime = Time (1000 * (int64) transaction.transactionDate.timeIntervalSince1970)
                               .toString (true, true, true, true);
 
-        Purchase purchase { orderId, productId, packageName, purchaseTime, {} };
+        String purchaseReceipt;
+        if (success)
+        {
+            auto* receiptURL = [[NSBundle mainBundle] appStoreReceiptURL];
+
+            if (auto* receiptData = [NSData dataWithContentsOfURL: receiptURL])
+            {
+                NSString* receiptString = [receiptData base64EncodedStringWithOptions:0];
+                purchaseReceipt = nsStringToJuce(receiptString);
+            }
+        }
+
+        Purchase purchase { orderId, productId, packageName, purchaseTime, {}, purchaseReceipt };
 
         Array<Download*> downloads;
 
