@@ -117,9 +117,9 @@ public:
         init();
     }
 
-    JuceAudioUnitv3 (AUAudioUnit* audioUnit, AudioComponentDescription, AudioComponentInstantiationOptions, NSError**)
+    JuceAudioUnitv3 (AUAudioUnit* audioUnit, AudioComponentDescription descr, AudioComponentInstantiationOptions, NSError**)
         : au (audioUnit),
-          processorHolder (new AudioProcessorHolder (createPluginFilterOfType (AudioProcessor::wrapperType_AudioUnitv3)))
+          processorHolder (new AudioProcessorHolder (createPluginFilterOfType (AudioProcessor::wrapperType_AudioUnitv3, descr.componentType)))
     {
         jassert (MessageManager::getInstance()->isThisTheMessageThread());
         initialiseJuce_GUI();
@@ -1788,43 +1788,54 @@ public:
             JuceAudioUnitv3::removeEditor (getAudioProcessor());
     }
 
-    //==============================================================================
     void loadView()
     {
         JUCE_ASSERT_MESSAGE_THREAD
 
-        if (auto p = createPluginFilterOfType (AudioProcessor::wrapperType_AudioUnitv3))
-        {
-            processorHolder = new AudioProcessorHolder (std::move (p));
-            auto& processor = getAudioProcessor();
+        JUCE_IOS_MAC_VIEW* view = [[[JUCE_IOS_MAC_VIEW alloc] initWithFrame: CGRectMake(0, 0, 1024, 768)] autorelease];
+        [myself setView: view];
+    }
+    
+    //==============================================================================
+    void createAudioProcessor(WaitableEvent* event, OSType componentType)
+    {
+        waitForExecutionOnMainThread ([this, event, componentType] {
+            JUCE_ASSERT_MESSAGE_THREAD
 
-            if (processor.hasEditor())
+            if (auto p = createPluginFilterOfType (AudioProcessor::wrapperType_AudioUnitv3, componentType))
             {
-                if (AudioProcessorEditor* editor = processor.createEditorIfNeeded())
+                processorHolder = new AudioProcessorHolder (std::move (p));
+                auto& processor = getAudioProcessor();
+
+                if (processor.hasEditor())
                 {
-                    preferredSize = editor->getBounds();
+                    if (AudioProcessorEditor* editor = processor.createEditorIfNeeded())
+                    {
+                        preferredSize = editor->getBounds();
 
-                    JUCE_IOS_MAC_VIEW* view = [[[JUCE_IOS_MAC_VIEW alloc] initWithFrame: convertToCGRect (editor->getBounds())] autorelease];
-                    [myself setView: view];
+                        JUCE_IOS_MAC_VIEW* view = [[[JUCE_IOS_MAC_VIEW alloc] initWithFrame: convertToCGRect (editor->getBounds())] autorelease];
+                        [myself setView: view];
 
-                   #if JUCE_IOS
-                    editor->setVisible (false);
-                   #else
-                    editor->setVisible (true);
-                   #endif
+                       #if JUCE_IOS
+                        editor->setVisible (false);
+                       #else
+                        editor->setVisible (true);
+                       #endif
 
-                    detail::PluginUtilities::addToDesktop (*editor, view);
+                        detail::PluginUtilities::addToDesktop (*editor, view);
 
-                   #if JUCE_IOS
-                    if (JUCE_IOS_MAC_VIEW* peerView = [[[myself view] subviews] objectAtIndex: 0])
-                        [peerView setContentMode: UIViewContentModeTop];
+                       #if JUCE_IOS
+                        if (JUCE_IOS_MAC_VIEW* peerView = [[[myself view] subviews] objectAtIndex: 0])
+                            [peerView setContentMode: UIViewContentModeTop];
 
-                    if (auto* peer = dynamic_cast<UIViewPeerControllerReceiver*> (editor->getPeer()))
-                        peer->setViewController (myself);
-                   #endif
+                        if (auto* peer = dynamic_cast<UIViewPeerControllerReceiver*> (editor->getPeer()))
+                            peer->setViewController (myself);
+                       #endif
+                    }
                 }
+                event->signal();
             }
-        }
+        });
     }
 
     void viewDidLayoutSubviews()
@@ -1963,7 +1974,12 @@ private:
 
 - (instancetype) initWithNibName: (nullable NSString*) nib bundle: (nullable NSBundle*) bndl { self = [super initWithNibName: nib bundle: bndl]; cpp.reset (new JuceAUViewController (self)); return self; }
 - (void) loadView                { cpp->loadView(); }
-- (AUAudioUnit *) createAudioUnitWithComponentDescription: (AudioComponentDescription) desc error: (NSError **) error { return cpp->createAudioUnit (desc, error); }
+- (AUAudioUnit *) createAudioUnitWithComponentDescription: (AudioComponentDescription) desc error: (NSError **) error {
+    WaitableEvent loadEvent;
+    cpp->createAudioProcessor(&loadEvent, desc.componentType);
+    loadEvent.wait(-1);
+    return cpp->createAudioUnit (desc, error);
+}
 - (CGSize) preferredContentSize  { return cpp->getPreferredContentSize(); }
 
 // NSViewController and UIViewController have slightly different names for this function
