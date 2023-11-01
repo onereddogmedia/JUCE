@@ -23,10 +23,9 @@
   ==============================================================================
 */
 
-namespace juce
+namespace juce::build_tools
 {
-namespace build_tools
-{
+
     class PlistOptions final
     {
     public:
@@ -104,5 +103,5 @@ namespace build_tools
         Array<XmlElement> createExtraAudioUnitV3TargetPlistOptions() const;
         void addExtension(XmlElement* componentArray, const String& componentType) const;
     };
-}
-}
+
+} // namespace juce::build_tools

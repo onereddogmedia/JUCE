@@ -23,10 +23,9 @@
   ==============================================================================
 */
 
-namespace juce
+namespace juce::build_tools
 {
-namespace build_tools
-{
+
     //==============================================================================
     static XmlElement* getKeyWithName (XmlElement& xml, const String& key)
     {
@@ -379,5 +378,5 @@ namespace build_tools
         if (auMainType.removeCharacters("'") == "aumi")
             tagsArray->createNewChildElement("string")->addTextElement("MIDI");
     }
-}
-}
+
+} // namespace juce::build_tools

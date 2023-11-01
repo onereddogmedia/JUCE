@@ -401,6 +401,9 @@
     <Filter Include="JUCE Modules\juce_core\network">
       <UniqueIdentifier>{0F70B1A9-BB50-23F5-2AE7-F95E51A00389}</UniqueIdentifier>
     </Filter>
+    <Filter Include="JUCE Modules\juce_core\serialisation">
+      <UniqueIdentifier>{D4D9BC01-0DED-2577-4B99-2FF7B9C7EF8A}</UniqueIdentifier>
+    </Filter>
     <Filter Include="JUCE Modules\juce_core\streams">
       <UniqueIdentifier>{D4C8DC40-2CD2-04B6-05D0-1E7A88841390}</UniqueIdentifier>
     </Filter>
@@ -653,18 +656,6 @@
     <Filter Include="JUCE Modules\juce_product_unlocking">
       <UniqueIdentifier>{409F7733-AD90-6113-85BA-7136DD178413}</UniqueIdentifier>
     </Filter>
-    <Filter Include="JUCE Modules\juce_video\capture">
-      <UniqueIdentifier>{CB8DF3B2-0409-6D59-C5D4-A034EBB7F973}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="JUCE Modules\juce_video\native">
-      <UniqueIdentifier>{7774F72F-C951-B8AB-E927-E34AD23C52C8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="JUCE Modules\juce_video\playback">
-      <UniqueIdentifier>{658BADF8-7095-C722-F9EC-9F36E8818187}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="JUCE Modules\juce_video">
-      <UniqueIdentifier>{2C58F450-CD01-0231-2F16-0D4D68565164}</UniqueIdentifier>
-    </Filter>
     <Filter Include="JUCE Modules">
       <UniqueIdentifier>{FE955B6B-68AC-AA07-70D8-2413F6DB65C8}</UniqueIdentifier>
     </Filter>
@@ -797,6 +788,9 @@
       <Filter>JUCE Modules\juce_audio_basics\synthesisers</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\modules\juce_audio_basics\utilities\juce_ADSR_test.cpp">
+      <Filter>JUCE Modules\juce_audio_basics\utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\modules\juce_audio_basics\utilities\juce_AudioWorkgroup.cpp">
       <Filter>JUCE Modules\juce_audio_basics\utilities</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\modules\juce_audio_basics\utilities\juce_IIRFilter.cpp">
@@ -1663,6 +1657,9 @@
     <ClCompile Include="..\..\..\..\modules\juce_core\containers\juce_DynamicObject.cpp">
       <Filter>JUCE Modules\juce_core\containers</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\modules\juce_core\containers\juce_FixedSizeFunction_test.cpp">
+      <Filter>JUCE Modules\juce_core\containers</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\..\modules\juce_core\containers\juce_HashMap_test.cpp">
       <Filter>JUCE Modules\juce_core\containers</Filter>
     </ClCompile>
@@ -1726,6 +1723,12 @@
     <ClCompile Include="..\..\..\..\modules\juce_core\javascript\juce_JSON.cpp">
       <Filter>JUCE Modules\juce_core\javascript</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\modules\juce_core\javascript\juce_JSONSerialisation_test.cpp">
+      <Filter>JUCE Modules\juce_core\javascript</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\modules\juce_core\javascript\juce_JSONUtils.cpp">
+      <Filter>JUCE Modules\juce_core\javascript</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\..\modules\juce_core\logging\juce_FileLogger.cpp">
       <Filter>JUCE Modules\juce_core\logging</Filter>
     </ClCompile>
@@ -1760,6 +1763,9 @@
       <Filter>JUCE Modules\juce_core\misc</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\modules\juce_core\misc\juce_RuntimePermissions.cpp">
+      <Filter>JUCE Modules\juce_core\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\modules\juce_core\misc\juce_ScopeGuard.cpp">
       <Filter>JUCE Modules\juce_core\misc</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\modules\juce_core\misc\juce_Uuid.cpp">
@@ -1805,6 +1811,9 @@
       <Filter>JUCE Modules\juce_core\native</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\modules\juce_core\native\juce_Network_windows.cpp">
+      <Filter>JUCE Modules\juce_core\native</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\modules\juce_core\native\juce_ObjCHelpers_mac_test.mm">
       <Filter>JUCE Modules\juce_core\native</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\modules\juce_core\native\juce_PlatformTimer_generic.cpp">
@@ -2066,9 +2075,6 @@
       <Filter>JUCE Modules\juce_data_structures</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\modules\juce_dsp\containers\juce_AudioBlock_test.cpp">
-      <Filter>JUCE Modules\juce_dsp\containers</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\modules\juce_dsp\containers\juce_FixedSizeFunction_test.cpp">
       <Filter>JUCE Modules\juce_dsp\containers</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\modules\juce_dsp\containers\juce_SIMDRegister_test.cpp">
@@ -3274,18 +3280,6 @@
     <ClCompile Include="..\..\..\..\modules\juce_product_unlocking\juce_product_unlocking.mm">
       <Filter>JUCE Modules\juce_product_unlocking</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\modules\juce_video\capture\juce_CameraDevice.cpp">
-      <Filter>JUCE Modules\juce_video\capture</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\modules\juce_video\playback\juce_VideoComponent.cpp">
-      <Filter>JUCE Modules\juce_video\playback</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\modules\juce_video\juce_video.cpp">
-      <Filter>JUCE Modules\juce_video</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\modules\juce_video\juce_video.mm">
-      <Filter>JUCE Modules\juce_video</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_analytics.cpp">
       <Filter>JUCE Library Code</Filter>
     </ClCompile>
@@ -3341,9 +3335,6 @@
       <Filter>JUCE Library Code</Filter>
     </ClCompile>
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_product_unlocking.cpp">
-      <Filter>JUCE Library Code</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\JuceLibraryCode\include_juce_video.cpp">
       <Filter>JUCE Library Code</Filter>
     </ClCompile>
   </ItemGroup>
@@ -3474,6 +3465,9 @@
     <ClInclude Include="..\..\..\..\modules\juce_audio_basics\mpe\juce_MPEZoneLayout.h">
       <Filter>JUCE Modules\juce_audio_basics\mpe</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\modules\juce_audio_basics\native\juce_AudioWorkgroup_mac.h">
+      <Filter>JUCE Modules\juce_audio_basics\native</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\..\..\modules\juce_audio_basics\native\juce_CoreAudioLayouts_mac.h">
       <Filter>JUCE Modules\juce_audio_basics\native</Filter>
     </ClInclude>
@@ -3514,6 +3508,9 @@
       <Filter>JUCE Modules\juce_audio_basics\synthesisers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\modules\juce_audio_basics\utilities\juce_ADSR.h">
+      <Filter>JUCE Modules\juce_audio_basics\utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\modules\juce_audio_basics\utilities\juce_AudioWorkgroup.h">
       <Filter>JUCE Modules\juce_audio_basics\utilities</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\modules\juce_audio_basics\utilities\juce_Decibels.h">
@@ -4734,6 +4731,9 @@
     <ClInclude Include="..\..\..\..\modules\juce_core\containers\juce_ElementComparator.h">
       <Filter>JUCE Modules\juce_core\containers</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\modules\juce_core\containers\juce_FixedSizeFunction.h">
+      <Filter>JUCE Modules\juce_core\containers</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\..\..\modules\juce_core\containers\juce_HashMap.h">
       <Filter>JUCE Modules\juce_core\containers</Filter>
     </ClInclude>
@@ -4816,6 +4816,12 @@
       <Filter>JUCE Modules\juce_core\javascript</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\modules\juce_core\javascript\juce_JSON.h">
+      <Filter>JUCE Modules\juce_core\javascript</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\modules\juce_core\javascript\juce_JSONSerialisation.h">
+      <Filter>JUCE Modules\juce_core\javascript</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\modules\juce_core\javascript\juce_JSONUtils.h">
       <Filter>JUCE Modules\juce_core\javascript</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\modules\juce_core\logging\juce_FileLogger.h">
@@ -4908,6 +4914,9 @@
     <ClInclude Include="..\..\..\..\modules\juce_core\misc\juce_RuntimePermissions.h">
       <Filter>JUCE Modules\juce_core\misc</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\modules\juce_core\misc\juce_ScopeGuard.h">
+      <Filter>JUCE Modules\juce_core\misc</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\..\..\modules\juce_core\misc\juce_Uuid.h">
       <Filter>JUCE Modules\juce_core\misc</Filter>
     </ClInclude>
@@ -4961,6 +4970,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\modules\juce_core\network\juce_WebInputStream.h">
       <Filter>JUCE Modules\juce_core\network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\modules\juce_core\serialisation\juce_Serialisation.h">
+      <Filter>JUCE Modules\juce_core\serialisation</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\modules\juce_core\streams\juce_AndroidDocumentInputSource.h">
       <Filter>JUCE Modules\juce_core\streams</Filter>
@@ -5221,9 +5233,6 @@
       <Filter>JUCE Modules\juce_data_structures</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\modules\juce_dsp\containers\juce_AudioBlock.h">
-      <Filter>JUCE Modules\juce_dsp\containers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\modules\juce_dsp\containers\juce_FixedSizeFunction.h">
       <Filter>JUCE Modules\juce_dsp\containers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\modules\juce_dsp\containers\juce_SIMDRegister.h">
@@ -6440,39 +6449,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\modules\juce_product_unlocking\juce_product_unlocking.h">
       <Filter>JUCE Modules\juce_product_unlocking</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\modules\juce_video\capture\juce_CameraDevice.h">
-      <Filter>JUCE Modules\juce_video\capture</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\modules\juce_video\native\juce_CameraDevice_android.h">
-      <Filter>JUCE Modules\juce_video\native</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\modules\juce_video\native\juce_CameraDevice_ios.h">
-      <Filter>JUCE Modules\juce_video\native</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\modules\juce_video\native\juce_CameraDevice_mac.h">
-      <Filter>JUCE Modules\juce_video\native</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\modules\juce_video\native\juce_CameraDevice_windows.h">
-      <Filter>JUCE Modules\juce_video\native</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\modules\juce_video\native\juce_ComTypes_windows.h">
-      <Filter>JUCE Modules\juce_video\native</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\modules\juce_video\native\juce_Video_android.h">
-      <Filter>JUCE Modules\juce_video\native</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\modules\juce_video\native\juce_Video_mac.h">
-      <Filter>JUCE Modules\juce_video\native</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\modules\juce_video\native\juce_Video_windows.h">
-      <Filter>JUCE Modules\juce_video\native</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\modules\juce_video\playback\juce_VideoComponent.h">
-      <Filter>JUCE Modules\juce_video\playback</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\modules\juce_video\juce_video.h">
-      <Filter>JUCE Modules\juce_video</Filter>
     </ClInclude>
     <ClInclude Include="..\..\JuceLibraryCode\JuceHeader.h">
       <Filter>JUCE Library Code</Filter>
