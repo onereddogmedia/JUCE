@@ -237,7 +237,9 @@ JUCE_API void JUCE_CALLTYPE Process::hide()
        #if JUCE_MAC
         [NSApp hide: nil];
        #elif JUCE_IOS
+        #if JucePlugin_Build_AUv3==0    // [ORD]: iOS SDK 17.2
         [[UIApplication sharedApplication] performSelector: @selector (suspend)];
+        #endif
        #endif
     }
 }

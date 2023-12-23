@@ -123,9 +123,9 @@ public:
         init();
     }
 
-    JuceAudioUnitv3 (AUAudioUnit* audioUnit, AudioComponentDescription, AudioComponentInstantiationOptions, NSError**)
+    JuceAudioUnitv3 (AUAudioUnit* audioUnit, AudioComponentDescription descr, AudioComponentInstantiationOptions, NSError**)
         : au (audioUnit),
-          processorHolder (new AudioProcessorHolder (createPluginFilterOfType (AudioProcessor::wrapperType_AudioUnitv3)))
+          processorHolder (new AudioProcessorHolder (createPluginFilterOfType (AudioProcessor::wrapperType_AudioUnitv3, descr.componentType)))    // [ORD]: support multiple plugins in appex
     {
         jassert (MessageManager::getInstance()->isThisTheMessageThread());
         initialiseJuce_GUI();
@@ -1815,7 +1815,7 @@ public:
     {
         JUCE_ASSERT_MESSAGE_THREAD
 
-        if (auto p = createPluginFilterOfType (AudioProcessor::wrapperType_AudioUnitv3))
+        if (auto p = createPluginFilterOfType (AudioProcessor::wrapperType_AudioUnitv3, componentType))     // [ORD]: support multiple plugins in appex
         {
             processorHolder = new AudioProcessorHolder (std::move (p));
             auto& processor = getAudioProcessor();
@@ -1903,6 +1903,10 @@ public:
     }
 
     //==============================================================================
+    /// <#Description#>
+    /// - Parameters:
+    ///   - descr: <#descr description#>
+    ///   - error: <#error description#>
     AUAudioUnit* createAudioUnit (const AudioComponentDescription& descr, NSError** error)
     {
         const auto holder = [&]
@@ -1910,7 +1914,7 @@ public:
             if (auto initialisedHolder = processorHolder.get())
                 return initialisedHolder;
 
-            waitForExecutionOnMainThread ([this] { [myself view]; });
+            waitForExecutionOnMainThread ([=] { [myself setComponentType:descr.componentType]; [myself view]; });
             return processorHolder.get();
         }();
 
@@ -1919,6 +1923,8 @@ public:
 
         return [(new JuceAudioUnitv3 (holder, descr, 0, error))->getAudioUnit() autorelease];
     }
+    
+    void setComponentType(OSType type) { componentType = type; }        // [ORD]: support multiple plugins in appex
 
 private:
     template <typename Callback>
@@ -1968,6 +1974,7 @@ private:
     AUViewController<AUAudioUnitFactory>* myself;
     LockedProcessorHolder processorHolder;
     Rectangle<int> preferredSize { 1, 1 };
+    OSType componentType;   // [ORD]: support multiple plugins in appex
 
     //==============================================================================
     AudioProcessor& getAudioProcessor() const noexcept       { return **processorHolder.get(); }
@@ -1984,6 +1991,7 @@ private:
 }
 
 - (instancetype) initWithNibName: (nullable NSString*) nib bundle: (nullable NSBundle*) bndl { self = [super initWithNibName: nib bundle: bndl]; cpp.reset (new JuceAUViewController (self)); return self; }
+- (void) setComponentType:(OSType) type { cpp->setComponentType(type); }    // [ORD]: support multiple plugins in appex
 - (void) loadView                { cpp->loadView(); }
 - (AUAudioUnit *) createAudioUnitWithComponentDescription: (AudioComponentDescription) desc error: (NSError **) error { return cpp->createAudioUnit (desc, error); }
 - (CGSize) preferredContentSize  { return cpp->getPreferredContentSize(); }

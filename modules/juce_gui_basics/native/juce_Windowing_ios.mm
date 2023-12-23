@@ -101,6 +101,7 @@ JUCE_END_IGNORE_WARNINGS_GCC_LIKE
           withCompletionHandler: (void(^)())completionHandler;
 
 #endif
+- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey, id> *)options;
 
 @end
 
@@ -451,6 +452,68 @@ JUCE_END_IGNORE_WARNINGS_GCC_LIKE
 }
 #endif
 
+// [ORD]: enable iOS openURL
+- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey, id> *)options
+{
+    if (!JUCEApplicationBase::getInstance())
+    {
+        [self applicationDidFinishLaunching:app];
+    }
+
+    NSUInteger accessOptions = NSFileCoordinatorReadingWithoutChanges;
+
+    auto *fileAccessIntent = [NSFileAccessIntent readingIntentWithURL:url options:accessOptions];
+
+    NSArray<NSFileAccessIntent *> *intents = @[fileAccessIntent];
+
+    auto *fileCoordinator = [[NSFileCoordinator alloc] initWithFilePresenter:nil];
+
+    [fileCoordinator coordinateAccessWithIntents:intents queue:[NSOperationQueue mainQueue] byAccessor:^(NSError *err) {
+        if (err == nil) {
+            [url startAccessingSecurityScopedResource];
+
+            NSError *error = nil;
+
+            NSData *bookmark = [url bookmarkDataWithOptions:0
+                             includingResourceValuesForKeys:nil
+                                              relativeToURL:nil
+                                                      error:&error];
+
+            [bookmark retain];
+
+            [url stopAccessingSecurityScopedResource];
+
+            URL juceUrl(nsStringToJuce([url absoluteString]));
+
+            if (error == nil) {
+                setURLBookmark(juceUrl, (void *) bookmark);
+            } else {
+                auto *desc = [error localizedDescription];
+                ignoreUnused(desc);
+                jassertfalse;
+            }
+
+            if (auto *a = JUCEApplicationBase::getInstance())
+            {
+                a->urlOpened(juceUrl);
+            }
+            else
+            {
+                jassertfalse;
+            }
+
+            [url stopAccessingSecurityScopedResource];
+
+        } else {
+            auto *desc = [err localizedDescription];
+            ignoreUnused(desc);
+            jassertfalse;
+        }
+    }];
+
+    return YES;
+}
+
 @end
 
 namespace juce
@@ -486,16 +549,22 @@ bool DragAndDropContainer::performExternalDragDropOfText (const String&, Compone
 //==============================================================================
 void Desktop::setScreenSaverEnabled (const bool isEnabled)
 {
+#if JucePlugin_Build_AUv3==0
     if (! SystemStats::isRunningInAppExtensionSandbox())
         [[UIApplication sharedApplication] setIdleTimerDisabled: ! isEnabled];
+#endif
 }
 
 bool Desktop::isScreenSaverEnabled()
 {
+#if JucePlugin_Build_AUv3==0
     if (SystemStats::isRunningInAppExtensionSandbox())
         return true;
 
     return ! [[UIApplication sharedApplication] isIdleTimerDisabled];
+#else
+    return false;
+#endif
 }
 
 //==============================================================================
@@ -624,6 +693,7 @@ static BorderSize<int> getSafeAreaInsets (float masterScale)
                                                                           safeInsets.right }.multipliedBy (1.0 / (double) masterScale));
     }
 
+#if JucePlugin_Build_AUv3==0
     JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wdeprecated-declarations")
     auto statusBarSize = [UIApplication sharedApplication].statusBarFrame.size;
     JUCE_END_IGNORE_WARNINGS_GCC_LIKE
@@ -631,6 +701,9 @@ static BorderSize<int> getSafeAreaInsets (float masterScale)
     auto statusBarHeight = jmin (statusBarSize.width, statusBarSize.height);
 
     return { roundToInt (statusBarHeight / masterScale), 0, 0, 0 };
+#else
+    return { 20, 0, 0, 0 };
+#endif
 }
 
 //==============================================================================

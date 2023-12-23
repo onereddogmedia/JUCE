@@ -109,6 +109,7 @@ static UIViewComponentPeer* currentlyFocusedPeer = nullptr;
 
 static UIInterfaceOrientation getWindowOrientation()
 {
+#if JucePlugin_Build_AUv3==0    // [ORD]: iOS SDK 17.2
     UIApplication* sharedApplication = [UIApplication sharedApplication];
 
    #if defined (__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_13_0
@@ -123,6 +124,9 @@ static UIInterfaceOrientation getWindowOrientation()
     JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wdeprecated-declarations")
     return [sharedApplication statusBarOrientation];
     JUCE_END_IGNORE_WARNINGS_GCC_LIKE
+#else
+    return UIInterfaceOrientationUnknown;   // [ORD]: iOS SDK 17.2
+#endif
 }
 
 struct Orientations
@@ -2258,7 +2262,7 @@ void Desktop::setKioskComponent (Component* kioskModeComp, bool enableOrDisable,
 
 void Desktop::allowedOrientationsChanged()
 {
-   #if defined (__IPHONE_16_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_16_0
+   #if defined (__IPHONE_16_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_16_0 && JucePlugin_Build_AUv3==0  // [ORD]: iOS SDK 17.2
     if (@available (iOS 16.0, *))
     {
         UIApplication* sharedApplication = [UIApplication sharedApplication];

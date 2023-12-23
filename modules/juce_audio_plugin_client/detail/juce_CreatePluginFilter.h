@@ -45,4 +45,22 @@ inline std::unique_ptr<AudioProcessor> createPluginFilterOfType (AudioProcessor:
     return pluginInstance;
 }
 
+// [ORD]: support multiple plugins in appex
+inline std::unique_ptr<AudioProcessor> createPluginFilterOfType (AudioProcessor::WrapperType type, uint32_t componentType)
+{
+    PluginHostType::jucePlugInClientCurrentWrapperType = type;
+    AudioProcessor::setTypeOfNextNewPlugin (type);
+    auto pluginInstance = rawToUniquePtr (::createPluginFilter(componentType));
+    AudioProcessor::setTypeOfNextNewPlugin (AudioProcessor::wrapperType_Undefined);
+
+    // your createPluginFilter() method must return an object!
+    jassert (pluginInstance != nullptr && pluginInstance->wrapperType == type);
+
+   #if JucePlugin_Enable_ARA
+    jassert (dynamic_cast<juce::AudioProcessorARAExtension*> (pluginInstance.get()) != nullptr);
+   #endif
+
+    return pluginInstance;
+}
+
 } // namespace juce

@@ -83,7 +83,7 @@ public:
           autoOpenMidiDevices (shouldAutoOpenMidiDevices)
     {
         shouldMuteInput.addListener (this);
-        shouldMuteInput = ! isInterAppAudioConnected();
+        shouldMuteInput = false;    // [ORD]: startup unmuted
 
         handleCreatePlugin();
 
@@ -295,7 +295,7 @@ public:
         o.dialogTitle                   = TRANS ("Audio/MIDI Settings");
         o.dialogBackgroundColour        = o.content->getLookAndFeel().findColour (ResizableWindow::backgroundColourId);
         o.escapeKeyTriggersCloseButton  = true;
-        o.useNativeTitleBar             = true;
+        o.useNativeTitleBar             = false;    // [ORD]: use native titlebar
         o.resizable                     = false;
 
         o.launchAsync();
@@ -326,7 +326,7 @@ public:
             savedState = settings->getXmlValue ("audioSetup");
 
            #if ! (JUCE_IOS || JUCE_ANDROID)
-            shouldMuteInput.setValue (settings->getBoolValue ("shouldMuteInput", true));
+            shouldMuteInput.setValue (settings->getBoolValue ("shouldMuteInput", false));    // [ORD]: startup unmuted
            #endif
         }
 
@@ -410,7 +410,7 @@ public:
     Array<PluginInOuts> channelConfiguration;
 
     // avoid feedback loop by default
-    bool processorHasPotentialFeedbackLoop = true;
+    bool processorHasPotentialFeedbackLoop = false;    // [ORD]; startup unmuted
     std::atomic<bool> muteInput { true };
     Value shouldMuteInput;
     AudioBuffer<float> emptyBuffer;

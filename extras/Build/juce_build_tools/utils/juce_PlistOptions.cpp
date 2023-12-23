@@ -351,27 +351,34 @@ namespace juce::build_tools
         dict->createNewChildElement ("key")->addTextElement ("AudioComponents");
         auto* componentArray = dict->createNewChildElement ("array");
 
-        auto* componentDict = componentArray->createNewChildElement ("dict");
-
-        addPlistDictionaryKey (*componentDict, "name", pluginManufacturer + ": " + pluginName);
-        addPlistDictionaryKey (*componentDict, "description", pluginDescription);
-        addPlistDictionaryKey (*componentDict, "factoryFunction", pluginAUExportPrefix + "FactoryAUv3");
-        addPlistDictionaryKey (*componentDict, "manufacturer", pluginManufacturerCode.substring (0, 4));
-        addPlistDictionaryKey (*componentDict, "type", auMainType.removeCharacters ("'"));
-        addPlistDictionaryKey (*componentDict, "subtype", pluginCode.substring (0, 4));
-        addPlistDictionaryKey (*componentDict, "version", getAUVersionAsHexInteger (*this));
-        addPlistDictionaryKey (*componentDict, "sandboxSafe", true);
-
-        componentDict->createNewChildElement ("key")->addTextElement ("tags");
-        auto* tagsArray = componentDict->createNewChildElement ("array");
-
-        tagsArray->createNewChildElement ("string")
-                 ->addTextElement (isPluginSynth ? "Synth" : "Effects");
-
-        if (auMainType.removeCharacters ("'") == "aumi")
-            tagsArray->createNewChildElement ("string")->addTextElement ("MIDI");
+        // [ORD]: support multiple plugins in appex
+        addExtension (componentArray, auMainType.removeCharacters ("'"));
+        addExtension (componentArray, "aumf");
 
         return { plistKey, plistEntry };
+    }
+
+    // [ORD]: support multiple plugins in appex
+    void PlistOptions::addExtension (XmlElement* componentArray, const String& componentType) const
+    {
+        auto* componentDict = componentArray->createNewChildElement("dict");
+
+        addPlistDictionaryKey(*componentDict, "name", pluginManufacturer + ": " + pluginName);
+        addPlistDictionaryKey(*componentDict, "description", pluginDescription);
+        addPlistDictionaryKey(*componentDict, "factoryFunction", pluginAUExportPrefix + "FactoryAUv3");
+        addPlistDictionaryKey(*componentDict, "manufacturer", pluginManufacturerCode.substring(0, 4));
+        addPlistDictionaryKey(*componentDict, "type", componentType);
+        addPlistDictionaryKey(*componentDict, "subtype", pluginCode.substring(0, 4));
+        addPlistDictionaryKey(*componentDict, "version", getAUVersionAsHexInteger(*this));
+        addPlistDictionaryKey(*componentDict, "sandboxSafe", true);
+
+        componentDict->createNewChildElement("key")->addTextElement("tags");
+        auto* tagsArray = componentDict->createNewChildElement("array");
+
+        tagsArray->createNewChildElement("string")->addTextElement(isPluginSynth ? "Synth" : "Effects");
+
+        if (auMainType.removeCharacters("'") == "aumi")
+            tagsArray->createNewChildElement("string")->addTextElement("MIDI");
     }
 
 } // namespace juce::build_tools

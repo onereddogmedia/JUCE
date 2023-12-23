@@ -406,6 +406,7 @@ bool JUCE_CALLTYPE Process::openDocument (const String& fileName, [[maybe_unused
                                                                                        : [NSURL URLWithString: fileNameAsNS];
 
       #if JUCE_IOS
+        #if JucePlugin_Build_AUv3==0    // [ORD]: iOS SDK 17.2
         if (@available (iOS 10.0, *))
         {
             [[UIApplication sharedApplication] openURL: filenameAsURL
@@ -418,6 +419,9 @@ bool JUCE_CALLTYPE Process::openDocument (const String& fileName, [[maybe_unused
         JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wdeprecated-declarations")
         return [[UIApplication sharedApplication] openURL: filenameAsURL];
         JUCE_END_IGNORE_WARNINGS_GCC_LIKE
+        #else
+        return false;
+        #endif
       #else
         NSWorkspace* workspace = [NSWorkspace sharedWorkspace];
 

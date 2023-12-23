@@ -39,8 +39,10 @@ void MessageManager::runDispatchLoop()
 
 void MessageManager::stopDispatchLoop()
 {
+#if JucePlugin_Build_AUv3==0    // [ORD]: iOS SDK 17.2
     if (! SystemStats::isRunningInAppExtensionSandbox())
        [[[UIApplication sharedApplication] delegate] applicationWillTerminate: [UIApplication sharedApplication]];
+#endif
 
     exit (0); // iOS apps get no mercy..
 }

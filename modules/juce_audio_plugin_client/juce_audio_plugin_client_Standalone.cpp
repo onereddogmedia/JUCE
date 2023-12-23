@@ -136,6 +136,14 @@ public:
             quit();
         }
     }
+    
+    //==============================================================================
+    // [ORD]: enable iOS openURL
+    void urlOpened(const URL& url) override
+    {
+        AudioProcessorEditor* editor = mainWindow->getAudioProcessor()->getActiveEditor();
+        editor->postOpenURL(url);
+    }    
 
 protected:
     ApplicationProperties appProperties;

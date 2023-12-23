@@ -212,6 +212,15 @@ void AudioProcessorEditor::setScaleFactor (float newScale)
     editorResized (true);
 }
 
+// [ORD]: enable iOS openURL
+void AudioProcessorEditor::postOpenURL(const URL& url)
+{
+    MessageManager::callAsync ([=]
+    {
+        handleOpenURL (url);
+    });
+}
+
 //==============================================================================
 typedef ComponentPeer* (*createUnityPeerFunctionType) (Component&);
 createUnityPeerFunctionType juce_createUnityPeerFn = nullptr;

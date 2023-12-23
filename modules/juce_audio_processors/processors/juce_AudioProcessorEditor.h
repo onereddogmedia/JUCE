@@ -223,6 +223,10 @@ public:
     */
     virtual bool wantsLayerBackedView() const;
 
+    // [ORD]: enable iOS openURL
+    void postOpenURL(const URL& url);
+    virtual void handleOpenURL(const URL& url) { juce::ignoreUnused (url); }
+
 private:
     //==============================================================================
     struct AudioProcessorEditorListener : public ComponentListener
