@@ -211,6 +211,40 @@ public:
 
         addAudioUnitBusses (true);
         addAudioUnitBusses (false);
+        
+        // create a timer to dispatch the plugin's generated MIDI events
+        #if JucePlugin_ProducesMidiOutput
+        if (@available (macOS 10.13, iOS 11.0, *)) {
+            midiOutputEventBlock = [au MIDIOutputEventBlock];
+
+            uint64_t duration = NSEC_PER_SEC / 60;
+            dispatch_queue_t main_q = dispatch_get_main_queue();
+            dispatch_source_t src = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, main_q);
+            dispatch_source_set_timer(src, 0, duration, 0);
+            dispatch_source_set_event_handler(src, ^{
+                // when the render callback goes active, cancel this timer
+                if (active) {
+                    dispatch_source_cancel(src);
+                    dispatch_release(src);
+                } else {
+                    MidiBuffer midiBuffer;
+                    extern void CoreMIDIRenderer_processNextMidiBuffer(MidiBuffer& buffer, const int startSample, const int numSamples);
+                    CoreMIDIRenderer_processNextMidiBuffer(midiBuffer, 0, 512);
+
+                    // send MIDI
+                    if (auto midiOut = midiOutputEventBlock) {
+                        for (const auto metadata : midiBuffer) {
+                            midiOut((int64_t) metadata.samplePosition + (int64_t) (mach_absolute_time() + 0.5),
+                                    0,
+                                    metadata.numBytes,
+                                    metadata.data);
+                        }
+                    }
+                }
+            });
+            dispatch_resume(src);
+        }
+        #endif
     }
 
     AudioProcessor& getAudioProcessor() const noexcept        { return **processorHolder; }
@@ -1474,6 +1508,8 @@ private:
                                       NSInteger outputBusNumber, AudioBufferList* outputData, const AURenderEvent *__nullable realtimeEventListHead,
                                       AURenderPullInputBlock __nullable pullInputBlock)
     {
+        active = true;
+
         auto& processor = getAudioProcessor();
         jassert (static_cast<int> (frameCount) <= getAudioProcessor().getBlockSize());
 
@@ -1779,6 +1815,8 @@ private:
     static constexpr bool forceLegacyParamIDs = false;
    #endif
     AudioProcessorParameter* bypassParam = nullptr;
+    
+    bool active = false;
 };
 
 #if JUCE_IOS
