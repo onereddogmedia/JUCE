@@ -1841,6 +1841,7 @@ private:
    #endif
     AudioProcessorParameter* bypassParam = nullptr;
     bool allocated = false;
+    bool active = false;
 };
 
 #if JUCE_IOS
