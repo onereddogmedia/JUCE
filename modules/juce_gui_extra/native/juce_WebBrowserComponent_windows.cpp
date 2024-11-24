@@ -474,7 +474,7 @@ public:
         }
         else
         {
-            if (owner.unloadPageWhenHidden && ! owner.blankPageShown)
+            if (webView != nullptr && owner.unloadPageWhenHidden && ! owner.blankPageShown)
             {
                 // when the component becomes invisible, some stuff like flash
                 // carries on playing audio, so we need to force it onto a blank
@@ -806,7 +806,29 @@ private:
                             auto errorString = "Error code: " + String (errorStatus);
 
                             if (owner.pageLoadHadNetworkError (errorString))
-                                owner.goToURL ("data:text/plain;charset=UTF-8," + errorString);
+                            {
+                                const auto adhocErrorPageUrl = "data:text/plain;charset=UTF-8," + errorString;
+
+                                if (owner.lastURL == adhocErrorPageUrl)
+                                {
+                                    // We encountered an error while trying to navigate to the adhoc
+                                    // error page. Trying to navigate to the error page again would
+                                    // likely end us up in an infinite error callback loop, so we
+                                    // early exit.
+                                    //
+                                    // Override WebBrowserComponent::pageLoadHadNetworkError and
+                                    // return false to avoid such a loop, while still being able to
+                                    // take action on the error if necessary.
+                                    //
+                                    // Receiving Error code: 9 can often be ignored safely with the
+                                    // current WebView2 implementation.
+                                    jassertfalse;
+
+                                    return S_OK;
+                                }
+
+                                owner.goToURL (adhocErrorPageUrl);
+                            }
                         }
                     }
 
@@ -974,6 +996,8 @@ private:
 
     void setWebViewPreferences()
     {
+        setControlVisible (owner.isShowing());
+
         ComSmartPtr<ICoreWebView2Controller2> controller2;
         webViewController->QueryInterface (controller2.resetAndGetPointerAddress());
 
