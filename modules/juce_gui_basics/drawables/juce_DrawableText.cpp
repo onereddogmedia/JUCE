@@ -36,7 +36,8 @@ namespace juce
 {
 
 DrawableText::DrawableText()
-    : colour (Colours::black),
+    : fontHeight (0), fontHScale (0),
+      colour (Colours::black),
       justification (Justification::centredLeft)
 {
     setBoundingBox (Parallelogram<float> ({ 0.0f, 0.0f, 50.0f, 20.0f }));
