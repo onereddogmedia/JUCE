@@ -93,6 +93,9 @@ public:
         /** Android only: purchase token that should be used to consume purchase, provided that In-App product
             is consumable. */
         String purchaseToken;
+
+        /** CNS: for iOS only: this is the purchase receipt that should be sent to the application's server for verifying the purchase with Apple's server. */
+        String purchaseReceipt;        
     };
 
     //==============================================================================
