@@ -55,6 +55,7 @@ namespace juce::build_tools
 
         String appGroupIdString;
 
+        String projectBundlerIdentifierString;
         StringArray hardenedRuntimeOptions;
         StringArray appSandboxOptions;
 
