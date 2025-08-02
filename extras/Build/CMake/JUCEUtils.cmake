@@ -1105,7 +1105,7 @@ function(juce_enable_vst3_manifest_step shared_code_target)
     add_custom_command(TARGET ${target_name} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E echo "creating ${ouput_path}"
         COMMAND ${CMAKE_COMMAND} -E make_directory "${product}/Contents/Resources"
-        COMMAND juce_vst3_helper
+        COMMAND $<CONFIG>/juce_vst3_helper
             -create
             -version "${target_version_string}"
             -path "${product}"
