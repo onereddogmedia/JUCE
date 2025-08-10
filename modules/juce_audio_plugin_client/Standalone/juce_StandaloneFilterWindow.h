@@ -310,7 +310,11 @@ public:
         o.dialogTitle                   = TRANS ("Audio/MIDI Settings");
         o.dialogBackgroundColour        = o.content->getLookAndFeel().findColour (ResizableWindow::backgroundColourId);
         o.escapeKeyTriggersCloseButton  = true;
+#if JUCE_IOS
         o.useNativeTitleBar             = false;    // [ORD]: use native titlebar
+#else
+        o.useNativeTitleBar             = true;
+#endif
         o.resizable                     = false;
 
         o.launchAsync();
