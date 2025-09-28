@@ -509,7 +509,7 @@ struct iOSAudioIODevice::Pimpl final : public AsyncUpdater
 
         if (err != noErr || audioQueue == nullptr)
         {
-            jassertfalse;
+//            jassertfalse;
             return {};
         }
 
