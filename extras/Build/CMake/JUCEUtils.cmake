@@ -1111,13 +1111,13 @@ function(juce_enable_vst3_manifest_step shared_code_target)
 
     get_target_property(target_version_string ${shared_code_target} JUCE_VERSION)
 
-    set(ouput_path "${product}/Contents/Resources/moduleinfo.json")
+    set(output_path "${product}/Contents/Resources/moduleinfo.json")
 
     # Use the helper tool to write out the moduleinfo.json
     add_custom_command(TARGET ${target_name} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E echo "creating ${output_path}"
         COMMAND ${CMAKE_COMMAND} -E make_directory "${product}/Contents/Resources"
-        COMMAND ${shared_code_target}_vst3_helper > "${ouput_path}")
+        COMMAND $<TARGET_FILE:${shared_code_target}_vst3_helper> > "${output_path}")
     
     set_target_properties(${shared_code_target} PROPERTIES _JUCE_VST3_MANIFEST_STEP_ADDED TRUE)
 endfunction()
